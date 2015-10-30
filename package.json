@@ -1,0 +1,50 @@
+{
+	"name": "Spell-and-Grammar-4-MD",
+	"displayName" : "Spelling and Grammar Checker",
+	"description": "Detect mistakes as you type and sugges fixes - great for Markdown.",
+	"version": "0.0.1",
+	"publisher": "seanmcbreen",
+	"license": "SEE LICENCE IN LICENSE.md",
+	"keywords": [
+		"$featured",
+		"Spelling",
+		"Grammar",
+		"_Markdown"
+	],
+	"categories":[
+		"Other",
+		"Language",
+		"Linter"
+	],
+	"engines": {
+		"vscode": "*"
+	},
+	"activationEvents": [
+		"onLanguage:markdown"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "Spell.suggestFix",
+				"title": "Spell Checker Suggestions"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "Spell.suggestFix",
+				"key": "Alt+."
+			}
+		]
+	},
+	"main": "./out/extension",
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+	},
+	"dependencies": {
+		"teacher": "^0.0.1"
+	},
+	"devDependencies": {
+		"vscode": "next"
+	}
+}
