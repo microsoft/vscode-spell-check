@@ -66,8 +66,8 @@ interface SpellMDSettings {
 // HELPER Get options from the settings file if one exists, otherwise use defaults
 // TODO Path is not working as exptected
 function readSettings(): SpellMDSettings {
-    var CONFIGFILE = "C:\\src\\junk\\.vscode\\spellMD.json";
-    var cfg: any = readJsonFile(CONFIGFILE);
+    let CONFIGFILE = "C:\\src\\junk\\.vscode\\spell.json";
+    let cfg: any = readJsonFile(CONFIGFILE);
 
     function readJsonFile(file): any {
         try {

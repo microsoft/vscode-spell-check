@@ -1,7 +1,5 @@
 # README
 
->**Important:** Once installed the checker will only update if you add the setting `"spellMD.enable": true` to your `.vscode\settings.json` file.
-
 This README covers off:
 * [Functionality](#functionality)
 * [Install](#install)
@@ -14,15 +12,15 @@ This README covers off:
 
 Load up a Markdown file and get highlights and hovers for existing issues.  Checking will occur as you type in the document.  
 
-![Underscores and hovers](/images/SpellMDDemo1.gif)
+![Underscores and hovers](/images/SpellDemo1.gif)
 
 The status bar lets you quickly navigate to any issue and you can see all positions in the gutter.  
 
-![Jump to issues](/images/SpellMDDemo2.gif)
+![Jump to issues](/images/SpellDemo2.gif)
 
 The `spellMD.json` config file is watched so you can add more ignores or change mappings at will.
 
-![Add to dictionary](/images/SpellMDDemo3.gif)
+![Add to dictionary](/images/SpellDemo3.gif)
 
 # Install
 This extension is published in the VS Code Gallery.  So simply hit 'F1' and type 'ext inst' from there select `SpellMD` and follow instructions.
@@ -31,7 +29,7 @@ This extension is published in the VS Code Gallery.  So simply hit 'F1' and type
 To clone the extension and load locally...
 
 ```
-git clone https://github.com/Microsoft/vscode-SpellMD.git
+git clone https://github.com/Microsoft/vscode-spell-check.git
 npm install
 tsc
 ```

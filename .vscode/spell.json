@@ -1,0 +1,27 @@
+{
+	"version": "0.1.0",
+	"ignoreWordsList": [
+		"vscode"
+	],
+	"mistakeTypeToStatus": {
+		"Passive voice": "Information",
+		"Spelling": "Error",
+		"Complex Expression": "Information",
+		"Hidden Verbs": "Information",
+		"Hyphen Required": "Error",
+		"Redundant Expression": "Information",
+		"Did you mean...": "Information",
+		"Repeated Word": "Error",
+		"Missing apostrophe": "Error",
+		"Redundant Expression": "Information",
+		"Cliches": "Warn",
+		"Missing Word": "Warn",
+		"Make I uppercase": "Error"
+	},
+	"replaceRegExp": [ 
+		"/^((`{3}\\\\s*)(\\\\w+)?(\\\\s*([\\\\w\\\\W]+?)\\\\n*)\\\\2)\\\\n*(?:[^\\\\S\\\\w\\\\s]|$)/gm",
+		"/\\\\]\\\\(([^\\\\)]+)\\\\)/g",
+		"/`(kb.*?)`/g",
+		"/-{3}[^-|][\\\\S\\\\s]*?-{3}/gm"
+	]
+}
