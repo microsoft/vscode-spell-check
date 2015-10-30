@@ -2,6 +2,7 @@
 	"name": "Spell-and-Grammar-4-MD",
 	"displayName": "Spelling and Grammar Checker",
 	"description": "Detect mistakes as you type and sugges fixes - great for Markdown.",
+		"icon": "icon.jpg",
 	"version": "0.0.1",
 	"publisher": "seanmcbreen",
 	"license": "SEE LICENCE IN LICENSE.md",
