@@ -10,7 +10,7 @@ This README covers off:
 
 # Functionality
 
-Load up a Markdown file and get highlights and hovers for existing issues.  Checking will occur as you type in the document.  
+Load up a Markdown file and get look highlights and hovers for existing issues.  Checking will occur as you type in the document.  
 
 ![Underscores and hovers](/images/SpellDemo1.gif)
 

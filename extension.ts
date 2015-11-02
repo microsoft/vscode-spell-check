@@ -10,7 +10,7 @@ let problems: SPELLMDProblem[] = [];
 // Activate the extension
 export function activate(disposables: Disposable[]) {
     console.log("Spell and Grammar checker active...");
-    
+
     commands.registerCommand('Spell.suggestFix', suggestFix);
 
     workspace.onDidChangeTextDocument(event => {
@@ -47,7 +47,7 @@ function suggestFix() {
     // replace the text with the selection
     // TODO provide an add option, input
     window.showQuickPick(items).then((selection) => {
-        if(!selection) return;
+        if (!selection) return;
         e.edit(function(edit) {
             edit.replace(wordRange, selection.label);
         });
@@ -100,7 +100,7 @@ function readSettings(): SpellMDSettings {
 // Match unwated markup and replace with lines or spaces
 // other chekers use the opposite arroach of only including words
 function removeUnwantedText(content: string): string {
-	var match;
+    var match;
     var unwantedTXTMachers = settings.replaceRegExp;
 
     for (var x = 0; x < unwantedTXTMachers.length; x++) {
@@ -112,10 +112,10 @@ function removeUnwantedText(content: string): string {
 
         match = content.match(regex);
         if (match !== null) {
-			// look for a multi line match and build enough lines into the replacement
+            // look for a multi line match and build enough lines into the replacement
             for (let i = 0; i < match.length; i++) {
                 let spaces: string;
-				let lin = match[i].split("\n").length;
+                let lin = match[i].split("\n").length;
 
                 if (lin > 1) {
                     spaces = new Array(lin).join("\n");
@@ -126,7 +126,7 @@ function removeUnwantedText(content: string): string {
             } //for
         }
     }
-	return content;
+    return content;
 }
 
 
@@ -136,18 +136,20 @@ function CreateDiagnostics(document: TextDocument) {
     let spellingErrors = languages.createDiagnosticCollection("spelling");
     problems = [];
     
-    // do the actuall checking and convert resultant list into diagnostics
-    spellcheckDocument(document.getText(), (problems) => {
-        for (let x = 0; x < problems.length; x++) {
-            let problem = problems[x];
-            let lineRange = new Range(problem.startLine, problem.startChar, problem.endLine, problem.endChar);
-            let loc = new Location(document.uri, lineRange);
+    // do the actual checking and convert resultant list into diagnostics
+    if (document.languageId === "markdown") {
+        spellcheckDocument(document.getText(), (problems) => {
+            for (let x = 0; x < problems.length; x++) {
+                let problem = problems[x];
+                let lineRange = new Range(problem.startLine, problem.startChar, problem.endLine, problem.endChar);
+                let loc = new Location(document.uri, lineRange);
 
-            let diag = new Diagnostic(lineRange, problem.message, convertSeverity(problem.type));
-            diagnostics.push(diag);
-        }
-        spellingErrors.set(document.uri, diagnostics);
-    });
+                let diag = new Diagnostic(lineRange, problem.message, convertSeverity(problem.type));
+                diagnostics.push(diag);
+            }
+            spellingErrors.set(document.uri, diagnostics);
+        });
+    }
 }
 
 // HELPER Map the mistake types to VS Code Diagnostic severity settings
@@ -178,8 +180,8 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
     let problemMessage: string;
     let detectedErrors: any = {};
 
-	content = removeUnwantedText(content);
-    
+    content = removeUnwantedText(content);
+
     t.check(content, function(err, docIssues) {
         if (docIssues != null) {
             for (let i = 0; i < docIssues.length; i++) {
