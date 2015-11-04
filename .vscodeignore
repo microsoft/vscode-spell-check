@@ -5,3 +5,4 @@ typings/**
 .gitignore
 tsconfig.json
 vsc-extension-quickstart.md
+*.vsix

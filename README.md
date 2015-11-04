@@ -45,18 +45,11 @@ Depending on your platform, this folder is located here:
 
 # Run and Configure
 
-## Enable via Config setting
-Add the following setting to your WorkSpace [or User] settings:
-
-```json
-	"spellMD.enable": true,
-```
-
 ## Open a Markdown file
 Then open any Markdown file and BOOM.
 
 ## Configure
-The plug-in supports and watches a config file.  This should go in the `.vscode` directory and needs to be called `spellMD.json`.  This file has the following sections:
+The plug-in supports and watches a config file.  This should go in the `.vscode` directory and needs to be called `spell.json`.  This file has the following sections:
 * **version** incase I change the format
 * **ignoreWordsList** an array of strings that represents words not to check
 * **mistakeTypeToStatus** we detect many error types and this is how they map to VS Code severities
@@ -73,17 +66,17 @@ Here is an example file...
 		"IntelliSense", "project.json", "nodejs", "transpiled",	"ASPNET"
 	],
 	"mistakeTypeToStatus": {
-		"Passive voice": "Info",
+		"Passive voice": "Information",
 		"Spelling": "Error",
-		"Complex Expression": "Info",
-		"Hidden Verbs": "Info",
+		"Complex Expression": "Information",
+		"Hidden Verbs": "Information",
 		"Hyphen Required": "Error",
-		"Did you mean...": "Info",
+		"Did you mean...": "Information",
 		"Repeated Word": "Error",
 		"Missing apostrophe": "Error",
-		"Redundant Expression": "Info",
-		"Cliches": "Warn",
-		"Missing Word": "Warn",
+		"Redundant Expression": "Information",
+		"Cliches": "Warning",
+		"Missing Word": "Warning",
 		"Make I uppercase": "Error"
 	},
 	"replaceRegExp": [ 
