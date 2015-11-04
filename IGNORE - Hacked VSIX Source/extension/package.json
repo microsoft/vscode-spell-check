@@ -16,7 +16,7 @@
 		"url": "https://github.com/Microsoft/vscode-spell-check.git"
 	},
 	"categories": ["Test"], 
-	"galleryBanner": {
+	"galleryBackground": {
 			"color":"#5c2d91",
 			"theme": "dark"
 	},
