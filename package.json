@@ -16,10 +16,6 @@
 		"url": "https://github.com/Microsoft/vscode-spell-check.git"
 	},
 	"categories": ["Test"], 
-	"galleryBanner": {
-			"color":"#5c2d91",
-			"theme": "dark"
-	},
 	"engines": {
 		"vscode": "*"
 	},
