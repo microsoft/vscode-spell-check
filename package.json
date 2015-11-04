@@ -1,11 +1,11 @@
 {
-	"name": "Spell-and-Grammar-4-MD",
+	"name": "Spell",
 	"displayName": "Spelling and Grammar Checker",
 	"description": "Detect mistakes as you type and sugges fixes - great for Markdown.",
-		"icon": "icon.jpg",
-	"version": "0.0.5",
+	"icon": "images/spellIcon.svg",
+	"version": "0.0.2",
 	"publisher": "seanmcbreen",
-	"license": "SEE LICENCE IN LICENSE.md",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"bugs": {
 		"url": "https://github.com/Microsoft/vscode-spell-check/issues",
 		"email": "smcbreen@microsoft.com"
@@ -15,13 +15,11 @@
 		"type": "git",
 		"url": "https://github.com/Microsoft/vscode-spell-check.git"
 	},
-	"keywords": [
-		"Spelling",
-		"Grammar",
-		"_Markdown"
-	],
+	"galleryBackground": {
+			"color":"#5c2d91",
+			"theme": "dark"
+	},
 	"categories": [
-		"Other",
 		"Language",
 		"Linter"
 	],

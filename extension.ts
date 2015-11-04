@@ -1,15 +1,19 @@
-import {workspace, languages, Diagnostic, DiagnosticSeverity, Location, Range, Disposable, Modes, TextDocument, Position, QuickPickOptions, QuickPickItem, window, commands} from 'vscode';
+import {workspace, languages, Diagnostic, DiagnosticSeverity, Location, Range, Disposable, TextDocument, Position, QuickPickOptions, QuickPickItem, window, commands} from 'vscode';
+
 let t = require('teacher');
 import fs = require('fs');
 
-let settings: SpellMDSettings = readSettings();
-
+let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
+
 //let currentDiagnostics: Disposable;
     
 // Activate the extension
 export function activate(disposables: Disposable[]) {
     console.log("Spell and Grammar checker active...");
+    
+    debugger;
+    settings= readSettings();
 
     commands.registerCommand('Spell.suggestFix', suggestFix);
 
@@ -66,7 +70,7 @@ interface SpellMDSettings {
 // HELPER Get options from the settings file if one exists, otherwise use defaults
 // TODO Path is not working as exptected
 function readSettings(): SpellMDSettings {
-    let CONFIGFILE = "C:\\src\\junk\\.vscode\\spell.json";
+    let CONFIGFILE = ".vscode/spell.json";
     let cfg: any = readJsonFile(CONFIGFILE);
 
     function readJsonFile(file): any {
@@ -77,7 +81,10 @@ function readSettings(): SpellMDSettings {
             cfg = JSON.parse('{\
                                 "version": "0.1.0", \
                                 "ignoreWordsList": [], \
-                                "replaceRegExp": [], \
+                                "replaceRegExp": [ \
+                                     "/^((`{3}\\\\s*)(\\\\w+)?(\\\\s*([\\\\w\\\\W]+?)\\\\n*)\\\\2)\\\\n*(?:[^\\\\S\\\\w\\\\s]|$)/gm", \
+                                    "/\\\\]\\\\(([^\\\\)]+)\\\\)/g" \
+                                    ], \
                                 "mistakeTypeToStatus": { \
                                     "Spelling": "Error", \
                                     "Passive Voice": "Information", \
