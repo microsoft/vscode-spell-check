@@ -5,18 +5,19 @@ import fs = require('fs');
 
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
-
-//let currentDiagnostics: Disposable;
     
+
 // Activate the extension
 export function activate(disposables: Disposable[]) {
     console.log("Spell and Grammar checker active...");
     
-    debugger;
+    // load in the settings form an optional project specific setting file 
     settings= readSettings();
 
+    // register the suggestion command for detected errors
     commands.registerCommand('Spell.suggestFix', suggestFix);
 
+    // Link into the two critical lifecycle events
     workspace.onDidChangeTextDocument(event => {
         CreateDiagnostics(event.document)
     }, undefined, disposables);
@@ -87,8 +88,8 @@ function readSettings(): SpellMDSettings {
                                     ], \
                                 "mistakeTypeToStatus": { \
                                     "Spelling": "Error", \
-                                    "Passive Voice": "Information", \
-                                    "Complex Expression": "Hint",\
+                                    "Passive Voice": "Warning", \
+                                    "Complex Expression": "Warning",\
                                     "Hyphen Required": "Error"}\
                                 }');
         }
@@ -164,7 +165,7 @@ function convertSeverity(mistakeType: string): number {
     let mistakeTypeToStatus: {}[] = settings.mistakeTypeToStatus;
 
     switch (mistakeTypeToStatus[mistakeType]) {
-        case "Warn":
+        case "Warning":
             return DiagnosticSeverity.Warning;
             break;
         case "Information":

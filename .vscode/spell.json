@@ -7,7 +7,7 @@
 	"mistakeTypeToStatus": {
 		"Passive voice": "Error",
 		"Spelling": "Error",
-		"Complex Expression": "Information",
+		"Complex Expression": "Warning",
 		"Hidden Verbs": "Information",
 		"Hyphen Required": "Error",
 		"Redundant Expression": "Information",
