@@ -5,6 +5,7 @@ import {workspace, languages, Diagnostic, DiagnosticSeverity, Location, Range, D
 let t = require('teacher');
 import fs = require('fs');
 
+
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
     
@@ -98,12 +99,11 @@ interface SpellMDSettings {
 
 // HELPER Get options from the settings file if one exists, otherwise use defaults
 function readSettings(): SpellMDSettings {
-    let CONFIGFILE = ".vscode/spell.json";
+    let CONFIGFILE = workspace.rootPath + "/.vscode/spell.json";
     let cfg: any = readJsonFile(CONFIGFILE);
 
     function readJsonFile(file): any {
         try {
-            //TODO [p1] this will read the file from the source repo not the extneion host need a different API call
             cfg = JSON.parse(fs.readFileSync(file).toString());
         }
         catch (err) {
@@ -229,7 +229,7 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
 
                     // The spell checker is pretty agressive on removing some separators which can impact matching
                     if(startPosInFile === -1){
-                        let separators: RegExp = /[`!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g;
+                        let separators: RegExp = /["`!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g;
                         
                         // remove the separators and try to match it again
                         startPosInFile = content.replace(separators, "").indexOf(issueTXTSearch);
@@ -237,7 +237,10 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                         // If we found it work out how many separators we removed
                         // TODO Improve this logic for where we slice/count how many were skipped
                         let removedPadding = content.slice(0,startPosInFile).match(separators);
-                        if(removedPadding!==null) startPosInFile += removedPadding.length + 1;
+                        if(removedPadding!==null) {
+                            startPosInFile += removedPadding.length + 1;
+                        }
+                        console.log(issueTXTSearch + " .. " + removedPadding.length);
                     }
                     
                     // If there was a precontext remove it fron the position calculations from position calculation
