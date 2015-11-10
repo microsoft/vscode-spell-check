@@ -67,6 +67,7 @@ function suggestFix() {
     let word: string = d.getText(wordRange);
         
     // find the key data for the specific issue
+    // TODO the problem array can be empty here need to debug why only sporaticly so likely a race
     let problem: SPELLMDProblem = problems.filter(function(obj) {
         return obj.error === word;
     })[0];
@@ -202,7 +203,6 @@ interface SPELLMDProblem {
 
 // Take in a text doc and produce the set of problems for both the editor action and actions
 // teacher does not return a line number and results are not in order - so a lot of the code is about 'guessing' a line number
-// TODO [p1] a better set of tests for unique location for the library seam to be here https://github.com/Automattic/atd-jquery/blob/master/src/atd.core.js#L94//
 function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => void): void {
     let problemMessage: string;
     let detectedErrors: any = {};
@@ -227,6 +227,19 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                         startPosInFile = content.indexOf(issueTXTSearch);
                     }
 
+                    // The spell checker is pretty agressive on removing some separators which can impact matching
+                    if(startPosInFile === -1){
+                        let separators: RegExp = /[`!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g;
+                        
+                        // remove the separators and try to match it again
+                        startPosInFile = content.replace(separators, "").indexOf(issueTXTSearch);
+            
+                        // If we found it work out how many separators we removed
+                        // TODO Improve this logic for where we slice/count how many were skipped
+                        let removedPadding = content.slice(0,startPosInFile).match(separators);
+                        if(removedPadding!==null) startPosInFile += removedPadding.length + 1;
+                    }
+                    
                     // If there was a precontext remove it fron the position calculations from position calculation
                     if (issueTXTPreContext.length > 0) {
                         startPosInFile += issueTXTPreContext.length;
