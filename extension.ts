@@ -229,7 +229,7 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
 
                     // The spell checker is pretty agressive on removing some separators which can impact matching
                     if(startPosInFile === -1){
-                        let separators: RegExp = /["`!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g;
+                        let separators: RegExp = /["`.]/g;
                         
                         // remove the separators and try to match it again
                         startPosInFile = content.replace(separators, "").indexOf(issueTXTSearch);
@@ -240,7 +240,7 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                         if(removedPadding!==null) {
                             startPosInFile += removedPadding.length + 1;
                         }
-                        console.log(issueTXTSearch + " .. " + removedPadding.length);
+                        //console.log(issueTXTSearch + " .. " + removedPadding.length);
                     }
                     
                     // If there was a precontext remove it fron the position calculations from position calculation
