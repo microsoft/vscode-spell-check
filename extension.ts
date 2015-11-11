@@ -16,7 +16,7 @@ export function activate(disposables: Disposable[]) {
     
     // load in the settings from an optional project specific setting file 
     // TODO [p2] Currently the only way to refresh is to reload window - as a worker I was watchin the file for updates which was cool
-    settings= readSettings();
+    settings = readSettings();
 
     // register the suggestion command for detected errors
     commands.registerCommand('Spell.suggestFix', suggestFix);
@@ -209,76 +209,59 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
 
     content = removeUnwantedText(content);
 
-    t.check(content, function(err, docIssues) {
-        if (docIssues != null) {
-            for (let i = 0; i < docIssues.length; i++) {
-                if (settings.ignoreWordsList.indexOf(docIssues.string) === -1) {
-
-                    let docIssue = docIssues[i];
-                    let issueTXTPreContext: string = (typeof docIssue.precontext !== "object") ? docIssue.precontext + " " : "";
-                    let issueTXTSearch: string = issueTXTPreContext + docIssue.string;
-                    let issueSuggestions: string[] = [];
+    t.check(content, function(err, docProblems) {
+        if (docProblems != null) {
+            for (let i = 0; i < docProblems.length; i++) {
+                if (settings.ignoreWordsList.indexOf(docProblems[i].string) === -1) {
+                    let problem = docProblems[i];
+                    let problemPreContext: string = (typeof problem.precontext !== "object") ? problem.precontext + " " : "";
+                    let problemWithPreContent: string = problemPreContext + problem.string;
+                    let problemSuggestions: string[] = [];
                     let startPosInFile: number = -1;
 
                     // Check to see if this error has been seen before use the full context for improved uniqueness
-                    if (detectedErrors[issueTXTSearch] > 0) {
-                        startPosInFile = nth_occurrence(content, issueTXTSearch, detectedErrors[issueTXTSearch] + 1);
-                    } else {
-                        startPosInFile = content.indexOf(issueTXTSearch);
-                    }
+                    if (detectedErrors[problemWithPreContent] > 0) startPosInFile = nth_occurrence(content, problemWithPreContent, detectedErrors[problemWithPreContent] + 1);
+                    else startPosInFile = content.indexOf(problemWithPreContent);
 
                     // The spell checker is pretty agressive on removing some separators which can impact matching
-                    if(startPosInFile === -1){
-                        let separators: RegExp = /["`.]/g;
+                    if (startPosInFile === -1) {
+                        let separators: RegExp = /["`!$%&(*+,.\/:;<=?@\[\\^_{|]/g;
+                        let strippedContent: string = content.replace(separators, "")
+                        startPosInFile = strippedContent.indexOf(problemWithPreContent);
+
+                        if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
                         
-                        // remove the separators and try to match it again
-                        startPosInFile = content.replace(separators, "").indexOf(issueTXTSearch);
-            
-                        // If we found it work out how many separators we removed
-                        // TODO Improve this logic for where we slice/count how many were skipped
-                        let removedPadding = content.slice(0,startPosInFile).match(separators);
-                        if(removedPadding!==null) {
-                            startPosInFile += removedPadding.length + 1;
-                        }
-                        //console.log(issueTXTSearch + " .. " + removedPadding.length);
-                    }
-                    
-                    // If there was a precontext remove it fron the position calculations from position calculation
-                    if (issueTXTPreContext.length > 0) {
-                        startPosInFile += issueTXTPreContext.length;
+                        // If we found it work out how many separators we removed this is flawed as it can underestimate
+                        let removedPadding = content.slice(0, startPosInFile).match(separators);
+                        if (removedPadding !== null) startPosInFile += removedPadding.length + 1;
+                    } else {
+                        if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
                     }
 
                     if (startPosInFile !== -1) {
                         let linesToMistake: String[] = content.substring(0, startPosInFile).split('\n');
                         let numberOfLinesToMistake: number = linesToMistake.length - 1;
 
-                        // use a counter for where the same error is found multiple times this helps in 'guessing' the right line no.
-                        if (!detectedErrors[issueTXTSearch]) {
-                            detectedErrors[issueTXTSearch] = 0;
-                            ++detectedErrors[issueTXTSearch];
-                        } else {
-                            ++detectedErrors[issueTXTSearch];
-                        }
+                        // use a counter for where the same error is found multiple times allows same work to match in different locations
+                        if (!detectedErrors[problemWithPreContent]) detectedErrors[problemWithPreContent] = 1;
+                        else ++detectedErrors[problemWithPreContent];
 
                         // make the suggestions an array even if only one is returned
-                        if (String(docIssue.suggestions) !== "undefined") {
-                            if (Array.isArray(docIssue.suggestions.option)) {
-                                issueSuggestions = docIssue.suggestions.option;
-                            } else {
-                                issueSuggestions = [docIssue.suggestions.option];
-                            }
+                        if (String(problem.suggestions) !== "undefined") {
+                            if (Array.isArray(problem.suggestions.option)) problemSuggestions = problem.suggestions.option;
+                            else problemSuggestions = [problem.suggestions.option];
                         }
 
                         problems.push({
-                            error: docIssue.string,
-                            preContext: issueTXTPreContext,
+                            error: problem.string,
+                            preContext: problemPreContext,
                             startLine: numberOfLinesToMistake,
                             startChar: linesToMistake[numberOfLinesToMistake].length,
                             endLine: numberOfLinesToMistake,
-                            endChar: linesToMistake[numberOfLinesToMistake].length + docIssue.string.length,
-                            type: docIssue.description,
-                            message: docIssue.description + " [" + docIssue.string + "] - suggest [" + issueSuggestions.join(", ") + "]",
-                            suggestions: issueSuggestions
+                            endChar: linesToMistake[numberOfLinesToMistake].length + problem.string.length,
+                            type: problem.description,
+                            message: problem.description + " [" + problem.string + "] - suggest [" + problemSuggestions.join(", ") + "]",
+                            suggestions: problemSuggestions
                         });
                     }
                 }
