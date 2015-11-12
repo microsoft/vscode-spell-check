@@ -9,6 +9,8 @@ import fs = require('fs');
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
     
+let CONSTPARSEOUT: RegExp = /[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g;
+
 
 // Activate the extension
 export function activate(disposables: Disposable[]) {
@@ -223,20 +225,57 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                     if (detectedErrors[problemWithPreContent] > 0) startPosInFile = nth_occurrence(content, problemWithPreContent, detectedErrors[problemWithPreContent] + 1);
                     else startPosInFile = content.indexOf(problemWithPreContent);
 
-                    // The spell checker is pretty agressive on removing some separators which can impact matching
-                    if (startPosInFile === -1) {
-                        let separators: RegExp = /["`!$%&(*+,.\/:;<=?@\[\\^_{|]/g;
-                        let strippedContent: string = content.replace(separators, "")
-                        startPosInFile = strippedContent.indexOf(problemWithPreContent);
+                    // // The spell checker is pretty agressive on removing some separators which can impact matching
+                    // // TODO CONSIDER STRIPPING in REGEXP
+                    // if (startPosInFile === -1) {
+                    //     let separators: RegExp = /["`!$%&(*+,.\/:;<=?@\[\\^_{|]/g;
+                    //     let strippedContent: string = content.replace(separators, "")
+                    //     startPosInFile = strippedContent.indexOf(problemWithPreContent);
 
+                    //     if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
+                        
+                    //     // If we found it work out how many separators we removed this is flawed as it can underestimate
+                    //     let removedPadding = content.slice(0, startPosInFile).match(separators);
+                    //     if (removedPadding !== null) startPosInFile += removedPadding.length + 1;
+                    // } else {
+                    //     if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
+                    // }
+
+
+                    // The spell checker is pretty agressive on removing some separators which can impact matching
+                    // TODO CONSIDER STRIPPING in REGEXP
+                    if (startPosInFile === -1) {
+                        let gapsFromReplacment: RegExp = /[ ]{2,}/g;
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        startPosInFile = content.indexOf(problemWithPreContent);
                         if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
                         
                         // If we found it work out how many separators we removed this is flawed as it can underestimate
-                        let removedPadding = content.slice(0, startPosInFile).match(separators);
-                        if (removedPadding !== null) startPosInFile += removedPadding.length + 1;
+                        let spaceMatches = content.slice(0, startPosInFile).match(gapsFromReplacment);
+                        var removedPadding: number = 0;
+
+                       if(spaceMatches!==null){
+                        if (Array.isArray(spaceMatches)) {
+                            for(let x=0; x < spaceMatches.length; x++) {
+                                removedPadding += spaceMatches[x].length;
+                            }
+                        } else {
+                            removedPadding += spaceMatches.length;
+                        }
+                       }
+                        
+
+                        if (removedPadding !== null) startPosInFile += removedPadding + 1;
                     } else {
                         if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
                     }
+
 
                     if (startPosInFile !== -1) {
                         let linesToMistake: String[] = content.substring(0, startPosInFile).split('\n');
