@@ -5,22 +5,37 @@ import {workspace, languages, Diagnostic, DiagnosticSeverity, Location, Range, D
 let t = require('teacher');
 import fs = require('fs');
 
+// the settings supported
+interface SpellMDSettings {
+    ignoreWordsList: string[];
+    mistakeTypeToStatus: {}[];
+}
 
+// an individual error that is discoverted this interface will be used for diagnostic results as well as quick actions (the suggestions)
+interface SPELLMDProblem {
+    error: string;
+    preContext: string;
+    startLine: number;
+    startChar: number;
+    endLine: number;
+    endChar: number;
+    type: string;
+    message: string;
+    suggestions: string[];
+}
+
+// GLOBALS ///////////////////
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
-    
-let CONSTPARSEOUT: RegExp = /[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g;
-
+  
 
 // Activate the extension
 export function activate(disposables: Disposable[]) {
     console.log("Spell and Grammar checker active...");
     
-    // load in the settings from an optional project specific setting file 
-    // TODO [p2] Currently the only way to refresh is to reload window - as a worker I was watchin the file for updates which was cool
+    // TODO [p2] Currently the only way to refresh is to reload window add a wacher
     settings = readSettings();
 
-    // register the suggestion command for detected errors
     commands.registerCommand('Spell.suggestFix', suggestFix);
 
     // Link into the two critical lifecycle events
@@ -37,11 +52,16 @@ export function activate(disposables: Disposable[]) {
 function CreateDiagnostics(document: TextDocument) {
     let diagnostics: Diagnostic[] = [];
     let spellingErrors = languages.createDiagnosticCollection("spelling");
+    let docToCheck = document.getText();
+
+    // clear existing problems
     problems = [];
     
-    // do the actual checking and convert resultant list into diagnostics
+    // the spell checker ignores a lot of chars so removing them aids in problem matching
+    docToCheck = docToCheck.replace(/[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
+    
     if (document.languageId === "markdown") {
-        spellcheckDocument(document.getText(), (problems) => {
+        spellcheckDocument(docToCheck, (problems) => {
             for (let x = 0; x < problems.length; x++) {
                 let problem = problems[x];
                 let lineRange = new Range(problem.startLine, problem.startChar, problem.endLine, problem.endChar);
@@ -91,13 +111,7 @@ function suggestFix() {
 }
 
 
-// the settings supported
-interface SpellMDSettings {
-    enable: boolean;
-    ignoreWordsList: string[];
-    mistakeTypeToStatus: {}[];
-    replaceRegExp: string[];
-}
+
 
 // HELPER Get options from the settings file if one exists, otherwise use defaults
 function readSettings(): SpellMDSettings {
@@ -112,10 +126,6 @@ function readSettings(): SpellMDSettings {
             cfg = JSON.parse('{\
                                 "version": "0.1.0", \
                                 "ignoreWordsList": [], \
-                                "replaceRegExp": [ \
-                                     "/^((`{3}\\\\s*)(\\\\w+)?(\\\\s*([\\\\w\\\\W]+?)\\\\n*)\\\\2)\\\\n*(?:[^\\\\S\\\\w\\\\s]|$)/gm", \
-                                    "/\\\\]\\\\(([^\\\\)]+)\\\\)/g" \
-                                    ], \
                                 "mistakeTypeToStatus": { \
                                     "Spelling": "Error", \
                                     "Passive Voice": "Warning", \
@@ -127,44 +137,12 @@ function readSettings(): SpellMDSettings {
     }
 
     return {
-        enable: true,
         ignoreWordsList: cfg.ignoreWordsList,
-        mistakeTypeToStatus: cfg.mistakeTypeToStatus,
-        replaceRegExp: cfg.replaceRegExp
+        mistakeTypeToStatus: cfg.mistakeTypeToStatus
     }
 }
 
 
-// Match unwated markup and replace with lines or spaces
-function removeUnwantedText(content: string): string {
-    var match;
-    var unwantedTXTMachers = settings.replaceRegExp;
-
-    for (var x = 0; x < unwantedTXTMachers.length; x++) {
-        // Convert the JSON of regExp Strings into a real RegExp
-        var flags = unwantedTXTMachers[x].replace(/.*\/([gimy]*)$/, '$1');
-        var pattern = unwantedTXTMachers[x].replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
-        pattern = pattern.replace(/\\\\/g, "\\");
-        var regex = new RegExp(pattern, flags);
-
-        match = content.match(regex);
-        if (match !== null) {
-            // look for a multi line match and build enough lines into the replacement
-            for (let i = 0; i < match.length; i++) {
-                let spaces: string;
-                let lin = match[i].split("\n").length;
-
-                if (lin > 1) {
-                    spaces = new Array(lin).join("\n");
-                } else {
-                    spaces = new Array(match[i].length + 1).join(" ");
-                }
-                content = content.replace(match[i], spaces);
-            } //for
-        }
-    }
-    return content;
-}
 
 
 // HELPER Map the mistake types to VS Code Diagnostic severity settings
@@ -190,18 +168,7 @@ function convertSeverity(mistakeType: string): number {
     }
 }
 
-// an individual error that is discoverted this interface will be used for diagnostic results as well as quick actions (the suggestions)
-interface SPELLMDProblem {
-    error: string;
-    preContext: string;
-    startLine: number;
-    startChar: number;
-    endLine: number;
-    endChar: number;
-    type: string;
-    message: string;
-    suggestions: string[];
-}
+
 
 // Take in a text doc and produce the set of problems for both the editor action and actions
 // teacher does not return a line number and results are not in order - so a lot of the code is about 'guessing' a line number
@@ -209,73 +176,48 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
     let problemMessage: string;
     let detectedErrors: any = {};
 
-    content = removeUnwantedText(content);
-
     t.check(content, function(err, docProblems) {
         if (docProblems != null) {
             for (let i = 0; i < docProblems.length; i++) {
                 if (settings.ignoreWordsList.indexOf(docProblems[i].string) === -1) {
                     let problem = docProblems[i];
+                    let problemTXT = problem.string;
                     let problemPreContext: string = (typeof problem.precontext !== "object") ? problem.precontext + " " : "";
-                    let problemWithPreContent: string = problemPreContext + problem.string;
+                    let problemWithPreContent: string = problemPreContext + problemTXT;
                     let problemSuggestions: string[] = [];
                     let startPosInFile: number = -1;
 
                     // Check to see if this error has been seen before use the full context for improved uniqueness
-                    if (detectedErrors[problemWithPreContent] > 0) startPosInFile = nth_occurrence(content, problemWithPreContent, detectedErrors[problemWithPreContent] + 1);
-                    else startPosInFile = content.indexOf(problemWithPreContent);
-
-                    // // The spell checker is pretty agressive on removing some separators which can impact matching
-                    // // TODO CONSIDER STRIPPING in REGEXP
-                    // if (startPosInFile === -1) {
-                    //     let separators: RegExp = /["`!$%&(*+,.\/:;<=?@\[\\^_{|]/g;
-                    //     let strippedContent: string = content.replace(separators, "")
-                    //     startPosInFile = strippedContent.indexOf(problemWithPreContent);
-
-                    //     if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
-                        
-                    //     // If we found it work out how many separators we removed this is flawed as it can underestimate
-                    //     let removedPadding = content.slice(0, startPosInFile).match(separators);
-                    //     if (removedPadding !== null) startPosInFile += removedPadding.length + 1;
-                    // } else {
-                    //     if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
-                    // }
-
-
-                    // The spell checker is pretty agressive on removing some separators which can impact matching
-                    // TODO CONSIDER STRIPPING in REGEXP
-                    if (startPosInFile === -1) {
-                        let gapsFromReplacment: RegExp = /[ ]{2,}/g;
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        startPosInFile = content.indexOf(problemWithPreContent);
+                    // This is required as the same error can show up multiple times in a single doc - catch em all
+                    if (detectedErrors[problemWithPreContent] > 0) {
+                        startPosInFile = nth_occurrence(content, problemWithPreContent, detectedErrors[problemWithPreContent] + 1);
                         if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
-                        
-                        // If we found it work out how many separators we removed this is flawed as it can underestimate
-                        let spaceMatches = content.slice(0, startPosInFile).match(gapsFromReplacment);
-                        var removedPadding: number = 0;
-
-                       if(spaceMatches!==null){
-                        if (Array.isArray(spaceMatches)) {
-                            for(let x=0; x < spaceMatches.length; x++) {
-                                removedPadding += spaceMatches[x].length;
-                            }
-                        } else {
-                            removedPadding += spaceMatches.length;
-                        }
-                       }
-                        
-
-                        if (removedPadding !== null) startPosInFile += removedPadding + 1;
                     } else {
-                        if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
+                        startPosInFile = content.indexOf(problemWithPreContent);
+                        if (startPosInFile !== -1 && problemPreContext.length > 0) startPosInFile += problemPreContext.length;
                     }
 
+                    // At times I've inserted a lot of spaces so the match will be missed...
+                    // time for some fallback this can produce some false positives but very few
+                    if (startPosInFile === -1) {
+                        let regex = new RegExp(problemPreContext + "[ ]+" + problemTXT, "g");
+                        let m = regex.exec(content);
+                        
+                        // did we find a match
+                        if (m !== null) {
+                            // TODO only worry about first match for now
+                            let matchTXT = m[0];
+                            startPosInFile = m.index;
+                            
+                            // ok adjust for any precontent and padding
+                            if (problemPreContext !== "") {
+                                let regex2 = new RegExp(problemPreContext + "[ ]+", "g");
+                                let m2 = regex2.exec(matchTXT);
+                                startPosInFile += m2[0].length;
+                            }
+
+                        }
+                    } 
 
                     if (startPosInFile !== -1) {
                         let linesToMistake: String[] = content.substring(0, startPosInFile).split('\n');
@@ -292,14 +234,14 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                         }
 
                         problems.push({
-                            error: problem.string,
+                            error: problemTXT,
                             preContext: problemPreContext,
                             startLine: numberOfLinesToMistake,
                             startChar: linesToMistake[numberOfLinesToMistake].length,
                             endLine: numberOfLinesToMistake,
-                            endChar: linesToMistake[numberOfLinesToMistake].length + problem.string.length,
+                            endChar: linesToMistake[numberOfLinesToMistake].length + problemTXT.length,
                             type: problem.description,
-                            message: problem.description + " [" + problem.string + "] - suggest [" + problemSuggestions.join(", ") + "]",
+                            message: problem.description + " [" + problemTXT + "] - suggest [" + problemSuggestions.join(", ") + "]",
                             suggestions: problemSuggestions
                         });
                     }
