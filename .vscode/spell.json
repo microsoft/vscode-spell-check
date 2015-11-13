@@ -1,8 +1,7 @@
 {
 	"version": "0.1.0",
 	"ignoreWordsList": [
-		"vscode",
-		"inSRC"
+		"vscode"
 	],
 	"mistakeTypeToStatus": {
 		"Passive voice": "Error",
@@ -17,8 +16,5 @@
 		"Cliches": "Warning",
 		"Missing Word": "Warning",
 		"Make I uppercase": "Error"
-	},
-	"replaceRegExp": [ 
-		"/[`\"!#$%&()*+,.\\\\/:;<=>?@\\\\[\\\\]\\\\\\\\^_{|}]/g"  
-	]
+	}
 }

@@ -1,17 +1,13 @@
-// This has been updated to 0.10.0 and works
-
 import {workspace, languages, Diagnostic, DiagnosticSeverity, Location, Range, Disposable, TextDocument, Position, QuickPickOptions, QuickPickItem, window, commands} from 'vscode';
 
 let t = require('teacher');
 import fs = require('fs');
 
-// the settings supported
 interface SpellMDSettings {
     ignoreWordsList: string[];
     mistakeTypeToStatus: {}[];
 }
 
-// an individual error that is discoverted this interface will be used for diagnostic results as well as quick actions (the suggestions)
 interface SPELLMDProblem {
     error: string;
     preContext: string;
@@ -28,7 +24,6 @@ interface SPELLMDProblem {
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
   
-
 // Activate the extension
 export function activate(disposables: Disposable[]) {
     console.log("Spell and Grammar checker active...");
@@ -59,7 +54,7 @@ function CreateDiagnostics(document: TextDocument) {
     
     // the spell checker ignores a lot of chars so removing them aids in problem matching
     docToCheck = docToCheck.replace(/[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
-    
+
     if (document.languageId === "markdown") {
         spellcheckDocument(docToCheck, (problems) => {
             for (let x = 0; x < problems.length; x++) {
@@ -190,40 +185,17 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                     // Check to see if this error has been seen before use the full context for improved uniqueness
                     // This is required as the same error can show up multiple times in a single doc - catch em all
                     if (detectedErrors[problemWithPreContent] > 0) {
-                        startPosInFile = nth_occurrence(content, problemWithPreContent, detectedErrors[problemWithPreContent] + 1);
-                        if (problemPreContext.length > 0) startPosInFile += problemPreContext.length;
+                        startPosInFile = nthOccurrence(content, problemTXT, problemPreContext, detectedErrors[problemWithPreContent] + 1);
+
                     } else {
-                        startPosInFile = content.indexOf(problemWithPreContent);
-                        if (startPosInFile !== -1 && problemPreContext.length > 0) startPosInFile += problemPreContext.length;
+                        startPosInFile = nthOccurrence(content, problemTXT, problemPreContext, 1);
+
                     }
-
-                    // At times I've inserted a lot of spaces so the match will be missed...
-                    // time for some fallback this can produce some false positives but very few
-                    if (startPosInFile === -1) {
-                        let regex = new RegExp(problemPreContext + "[ ]+" + problemTXT, "g");
-                        let m = regex.exec(content);
-                        
-                        // did we find a match
-                        if (m !== null) {
-                            // TODO only worry about first match for now
-                            let matchTXT = m[0];
-                            startPosInFile = m.index;
-                            
-                            // ok adjust for any precontent and padding
-                            if (problemPreContext !== "") {
-                                let regex2 = new RegExp(problemPreContext + "[ ]+", "g");
-                                let m2 = regex2.exec(matchTXT);
-                                startPosInFile += m2[0].length;
-                            }
-
-                        }
-                    } 
 
                     if (startPosInFile !== -1) {
                         let linesToMistake: String[] = content.substring(0, startPosInFile).split('\n');
                         let numberOfLinesToMistake: number = linesToMistake.length - 1;
 
-                        // use a counter for where the same error is found multiple times allows same work to match in different locations
                         if (!detectedErrors[problemWithPreContent]) detectedErrors[problemWithPreContent] = 1;
                         else ++detectedErrors[problemWithPreContent];
 
@@ -253,22 +225,35 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
 }
 
 
-
 // HELPER recursive function to find the nth occurance of a string in an array
-function nth_occurrence(string, char, nth) {
-    let first_index = string.indexOf(char);
-    let length_up_to_first_index = first_index + 1;
+function nthOccurrence(content, problem, preContext, occuranceNo) {
+    let firstIndex = -1;
+    let regex = new RegExp(preContext + "[ ]+" + problem, "g");
+    let m = regex.exec(content);
+             
+    if (m !== null) {
+        let matchTXT = m[0];
+        // adjust for any precontent and padding
+        firstIndex = m.index + m[0].match(/^\s*/)[0].length;
+        if (preContext !== "") {
+            let regex2 = new RegExp(preContext + "[ ]+", "g");
+            let m2 = regex2.exec(matchTXT);
+            firstIndex += m2[0].length;
+        }
+    }
 
-    if (nth == 1) {
-        return first_index;
+    let lengthUpToFirstIndex = firstIndex + 1;
+
+    if (occuranceNo == 1) {
+        return firstIndex;
     } else {
-        let string_after_first_occurrence = string.slice(length_up_to_first_index);
-        let next_occurrence = nth_occurrence(string_after_first_occurrence, char, nth - 1);
+        let stringAfterFirstOccurrence = content.slice(lengthUpToFirstIndex);
+        let nextOccurrence = nthOccurrence(stringAfterFirstOccurrence, problem, preContext, occuranceNo - 1);
 
-        if (next_occurrence === -1) {
+        if (nextOccurrence === -1) {
             return -1;
         } else {
-            return length_up_to_first_index + next_occurrence;
+            return lengthUpToFirstIndex + nextOccurrence;
         }
     }
 }
