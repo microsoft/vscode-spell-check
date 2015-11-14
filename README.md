@@ -2,11 +2,11 @@
 
 Load up a Markdown file and get highlights and hovers for issues.  Checking will occur as you type and the extension will highlight both spelling mistakes as well as grammatical errors.  
 
-Once enabled and errors are detected you will see them in the status bar Error and Warning lists as well as in the right ruler.  Specific errors will be highlighted with squgglies in the editor itself.
+Once enabled and errors are detected you will see them in the `status bar` Error and Warning lists as well as in the `right ruler`.  Specific errors will be highlighted with squgglies in the editor itself.  You can navigate thorugh errors with `F8` or via the error and warning counts in the bottom left of the status bar.
+
+![Navigation](images/navigate.gif)
 
 When your cursor is within an error  you can get suggested fixes by hitting `Alt+.`.
-
-You can navigate thorugh errors with `F8` or via the error and wraning counts in the bottom left of the status bar.
 
 A configuration file is supported to allow for an: ignore words list and custom mapping between error types and VS Code diagnostic types.
 
