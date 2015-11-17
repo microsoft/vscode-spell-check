@@ -80,28 +80,36 @@ function suggestFix() {
     let sel = e.selection;
     
     // TODO [p1] need to actually use the error context i.e. diagnostic start and end in the current location
-    // The issue is that some grammar errors will be multiple words
+    // The issue is that some grammar errors will be multiple words currently I just ignore them
     let wordRange: Range = d.getWordRangeAtPosition(sel.active);
     let word: string = d.getText(wordRange);
         
     // find the key data for the specific issue
-    // TODO the problem array can be empty here need to debug why only sporaticly so likely a race
     let problem: SPELLMDProblem = problems.filter(function(obj) {
         return obj.error === word;
     })[0];
-            
-    // provide suggestions
-    for (let i = 0; i < problem.suggestions.length; i++) {
-        items.push({ label: problem.suggestions[i], description: "Replace [" + word + "] with [" + problem.suggestions[i] + "]" });
-    }
 
+    if (problem !== undefined) {
+        if (problem.suggestions.length > 0) {
+            for (let i = 0; i < problem.suggestions.length; i++) {
+                items.push({ label: problem.suggestions[i], description: "Replace [" + word + "] with [" + problem.suggestions[i] + "]" });
+            }
+        } else {
+            items.push({ label: null, description: "No suggestions available sorry..." });
+        }
+
+    } else {
+        items.push({ label: null, description: "No suggestions available sorry..." });
+    }
     // replace the text with the selection
-    // TODO [p2] provide an add option that would write the error into the spell.json disctonary
     window.showQuickPick(items).then((selection) => {
         if (!selection) return;
-        e.edit(function(edit) {
-            edit.replace(wordRange, selection.label);
-        });
+        if (selection.label !== null) {
+            e.edit(function(edit) {
+                edit.replace(wordRange, selection.label);
+
+            });
+        }
     });
 }
 
@@ -186,10 +194,8 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
                     // This is required as the same error can show up multiple times in a single doc - catch em all
                     if (detectedErrors[problemWithPreContent] > 0) {
                         startPosInFile = nthOccurrence(content, problemTXT, problemPreContext, detectedErrors[problemWithPreContent] + 1);
-
                     } else {
                         startPosInFile = nthOccurrence(content, problemTXT, problemPreContext, 1);
-
                     }
 
                     if (startPosInFile !== -1) {
@@ -228,15 +234,15 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
 // HELPER recursive function to find the nth occurance of a string in an array
 function nthOccurrence(content, problem, preContext, occuranceNo) {
     let firstIndex = -1;
-    let regex = new RegExp(preContext + "[ ]+" + problem, "g");
+    let regex = new RegExp(preContext + "[ ]*" + problem, "g");
     let m = regex.exec(content);
-             
+
     if (m !== null) {
         let matchTXT = m[0];
         // adjust for any precontent and padding
         firstIndex = m.index + m[0].match(/^\s*/)[0].length;
         if (preContext !== "") {
-            let regex2 = new RegExp(preContext + "[ ]+", "g");
+            let regex2 = new RegExp(preContext + "[ ]*", "g");
             let m2 = regex2.exec(matchTXT);
             firstIndex += m2[0].length;
         }
