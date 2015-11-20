@@ -4,6 +4,7 @@ let t = require('teacher');
 import fs = require('fs');
 
 interface SpellMDSettings {
+    language: string,
     ignoreWordsList: string[];
     mistakeTypeToStatus: {}[];
 }
@@ -128,6 +129,7 @@ function readSettings(): SpellMDSettings {
         catch (err) {
             cfg = JSON.parse('{\
                                 "version": "0.1.0", \
+                                "language": "en", \
                                 "ignoreWordsList": [], \
                                 "mistakeTypeToStatus": { \
                                     "Spelling": "Error", \
@@ -140,6 +142,7 @@ function readSettings(): SpellMDSettings {
     }
 
     return {
+        language: cfg.language,
         ignoreWordsList: cfg.ignoreWordsList,
         mistakeTypeToStatus: cfg.mistakeTypeToStatus
     }
@@ -178,8 +181,9 @@ function convertSeverity(mistakeType: string): number {
 function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => void): void {
     let problemMessage: string;
     let detectedErrors: any = {};
-
-    t.check(content, function(err, docProblems) {
+    console.log('settings.language: ' + settings.language);
+    let teach = new t.Teacher(settings.language);
+    teach.check(content, function(err, docProblems) {
         if (docProblems != null) {
             for (let i = 0; i < docProblems.length; i++) {
                 if (settings.ignoreWordsList.indexOf(docProblems[i].string) === -1) {
