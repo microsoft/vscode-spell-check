@@ -2,7 +2,7 @@
 
 Load up a Markdown file and get highlights and hovers for issues.  Checking will occur as you type and the extension will highlight both spelling mistakes as well as grammatical errors.  
 
-Once enabled and errors are detected you will see them in the `status bar` Error and Warning lists as well as in the `right ruler`.  Specific errors will be highlighted with squgglies in the editor itself.  You can navigate thorugh errors with `F8` or via the error and warning counts in the bottom left of the status bar.
+Once enabled and errors are detected you will see them in the `status bar` Error and Warning lists as well as in the `right ruler`.  Specific errors are highlighted with squgglies in the editor itself.  You can navigate thorugh errors with `F8` or via the error and warning counts in the bottom left of the status bar.
 
 ![Navigation](images/navigate.gif)
 
@@ -21,18 +21,39 @@ Open up VS Code and hit `F1` and type `ext` select install and type `spell` hit 
 
 # Get a Suggestion
 
-If an error is detected then hit `Alt+.` to get a suggest list and select the suggestion to replace the error.
+If an error is indicated then hit `Alt+.` to get a suggest list and select the suggestion to replace the error.
+
+
+
+# Change the language
+> kudos to [@alefragnani](https://github.com/alefragnani) for this contribution.
+
+Hit `F1` and type `Spell C...` choose the `Change Language` option from the drop down menu.  You will be presented with a list of available languages, once you select one the settings file will update as will the issue detection and suggestions.
+
+![Change Language](images/change-language.png)
+
+
+
+
 
 # Configuration
 A [sample file](https://github.com/Microsoft/vscode-spell-check/blob/master/.vscode/spell.json) is included in this repo.  The code has a [set of defaults](https://github.com/Microsoft/vscode-spell-check/blob/master/extension.ts#L109) as well.
 
-the file names `speel.md` should go in the `.vscode` directory. It has the following sections:
+the file names `spell.md` should go in the `.vscode` directory. It has the following sections:
 
 * **version** incase I change the format
 * **ignoreWordsList** an array of strings that represents words not to check
 * **mistakeTypeToStatus** we detect many error types and this is how they map to VS Code severities
+* **language** support for five languages (this can be changed also through `F1` an type `Spell: Choose Language`)
+	* "en" = English, [default]
+	* "fr" = French,
+	* "de" = German,
+	* "pt" = Portuguese,
+	* "es" = Spanish
 
 For now if you update the config file you need to reload the window for changes to take effect e.g. `F1` and type `reload` then hit enter.
+
+
 
 # Backlog
 
