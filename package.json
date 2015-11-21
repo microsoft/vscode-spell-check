@@ -32,7 +32,11 @@
 		"commands": [
 			{
 				"command": "Spell.suggestFix",
-				"title": "Spell Checker Suggestions"
+				"title": "Spell Checker: Suggestions"
+			},
+			{
+				"command": "Spell.changeLanguage",
+				"title": "Spell Checker: Change Language"
 			}
 		],
 		"keybindings": [
@@ -51,6 +55,6 @@
 		"teacher": "^0.0.1"
 	},
 	"devDependencies": {
-		"vscode": "0.10.0"
+		"vscode": "next"
 	}
 }

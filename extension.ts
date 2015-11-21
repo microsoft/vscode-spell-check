@@ -24,6 +24,7 @@ interface SPELLMDProblem {
 // GLOBALS ///////////////////
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
+let CONFIGFILE = workspace.rootPath + "/.vscode/spell.json";
   
 // Activate the extension
 export function activate(disposables: Disposable[]) {
@@ -33,6 +34,7 @@ export function activate(disposables: Disposable[]) {
     settings = readSettings();
 
     commands.registerCommand('Spell.suggestFix', suggestFix);
+    commands.registerCommand('Spell.changeLanguage', changeLanguage);
 
     // Link into the two critical lifecycle events
     workspace.onDidChangeTextDocument(event => {
@@ -119,7 +121,6 @@ function suggestFix() {
 
 // HELPER Get options from the settings file if one exists, otherwise use defaults
 function readSettings(): SpellMDSettings {
-    let CONFIGFILE = workspace.rootPath + "/.vscode/spell.json";
     let cfg: any = readJsonFile(CONFIGFILE);
 
     function readJsonFile(file): any {
@@ -148,7 +149,9 @@ function readSettings(): SpellMDSettings {
     }
 }
 
-
+function updateSettings(): void {
+    fs.writeFileSync(CONFIGFILE, JSON.stringify(settings));
+}
 
 
 // HELPER Map the mistake types to VS Code Diagnostic severity settings
@@ -181,7 +184,6 @@ function convertSeverity(mistakeType: string): number {
 function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => void): void {
     let problemMessage: string;
     let detectedErrors: any = {};
-    console.log('settings.language: ' + settings.language);
     let teach = new t.Teacher(settings.language);
     teach.check(content, function(err, docProblems) {
         if (docProblems != null) {
@@ -266,4 +268,56 @@ function nthOccurrence(content, problem, preContext, occuranceNo) {
             return lengthUpToFirstIndex + nextOccurrence;
         }
     }
+}
+
+function getLanguageDescription(initial: string): string {
+    switch (initial) {
+        case "en":
+            return "English";
+            break;
+        case "fr":
+            return "French";
+            break;
+        case "de":
+            return "German";
+            break;
+        case "pt":
+            return "Portuguese";
+            break;
+        case "es":
+            return "Spanish";
+            break;
+        default:
+            return "English";
+            break;
+    }
+}
+
+function changeLanguage() {
+    let items: QuickPickItem[] = [];
+        
+    items.push({ label: getLanguageDescription("en"), description: "en" });
+    items.push({ label: getLanguageDescription("fr"), description: "fr" });
+    items.push({ label: getLanguageDescription("de"), description: "de" });
+    items.push({ label: getLanguageDescription("pt"), description: "pt" });
+    items.push({ label: getLanguageDescription("es"), description: "es" });
+    let index: number;
+    for (let i = 0; i < items.length; i++) {
+        let element = items[i];
+        if (element.description == settings.language) {
+            index = i;
+            break;
+        }
+    }
+    items.splice(index, 1);
+    
+    // replace the text with the selection
+    window.showQuickPick(items).then((selection) => {
+        if (!selection) return;
+ 
+        settings.language = selection.description;
+        updateSettings();
+        CreateDiagnostics(window.activeTextEditor.document);
+    });
+    
 }
