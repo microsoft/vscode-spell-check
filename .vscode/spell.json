@@ -1,5 +1,6 @@
 {
 	"version": "0.1.0",
+	"language": "en",
 	"ignoreWordsList": [
 		"vscode"
 	],
@@ -16,5 +17,10 @@
 		"Cliches": "Warning",
 		"Missing Word": "Warning",
 		"Make I uppercase": "Error"
-	}
+	},
+	"languageIds" : [
+		"markdown",
+		"latex",
+		"text"
+	]
 }

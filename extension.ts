@@ -7,6 +7,7 @@ interface SpellMDSettings {
     language: string,
     ignoreWordsList: string[];
     mistakeTypeToStatus: {}[];
+    languageIDs: string[];
 }
 
 interface SPELLMDProblem {
@@ -58,7 +59,7 @@ function CreateDiagnostics(document: TextDocument) {
     // the spell checker ignores a lot of chars so removing them aids in problem matching
     docToCheck = docToCheck.replace(/[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
 
-    if (document.languageId === "markdown") {
+    if (settings.languageIDs.indexOf(document.languageId) !== -1) {
         spellcheckDocument(docToCheck, (problems) => {
             for (let x = 0; x < problems.length; x++) {
                 let problem = problems[x];
@@ -82,6 +83,7 @@ function suggestFix() {
     let d = e.document;
     let sel = e.selection;
     
+    if (settings.languageIDs.indexOf(d.languageId) !== -1) {
     // TODO [p1] need to actually use the error context i.e. diagnostic start and end in the current location
     // The issue is that some grammar errors will be multiple words currently I just ignore them
     let wordRange: Range = d.getWordRangeAtPosition(sel.active);
@@ -104,16 +106,27 @@ function suggestFix() {
     } else {
         items.push({ label: null, description: "No suggestions available sorry..." });
     }
+    
+    items.push({ label: "ADD TO IGNORE LIST", description: "Add [" + word + "] to ignore list." })
+    
     // replace the text with the selection
     window.showQuickPick(items).then((selection) => {
         if (!selection) return;
-        if (selection.label !== null) {
-            e.edit(function(edit) {
-                edit.replace(wordRange, selection.label);
-
-            });
+        if (selection.label === "ADD TO IGNORE LIST") {
+            settings.ignoreWordsList.push(word);
+            updateSettings();
+            CreateDiagnostics(window.activeTextEditor.document);
+        } else {
+            if (selection.label !== null) {
+                e.edit(function(edit) {
+                    edit.replace(wordRange, selection.label);
+                });
+            }
         }
     });
+    } else {
+        window.showInformationMessage("LanguageID: " + d.languageId + " not suported for spell checking.")
+    }
 }
 
 
@@ -136,16 +149,24 @@ function readSettings(): SpellMDSettings {
                                     "Spelling": "Error", \
                                     "Passive Voice": "Warning", \
                                     "Complex Expression": "Warning",\
-                                    "Hyphen Required": "Error"}\
-                                }');
+                                    "Hyphen Required": "Error"\
+                                    },\
+                                "languageIds": ["markdown","text"]\
+                              }');
         }
+        
+        //gracefully handle new fields
+        if(cfg.languageIDs===undefined) cfg.languageIDs = ["markdown"];
+        if(cfg.language===undefined) cfg.language = "en";
+        
         return cfg;
     }
 
     return {
         language: cfg.language,
         ignoreWordsList: cfg.ignoreWordsList,
-        mistakeTypeToStatus: cfg.mistakeTypeToStatus
+        mistakeTypeToStatus: cfg.mistakeTypeToStatus,
+        languageIDs: cfg.languageIDs
     }
 }
 
