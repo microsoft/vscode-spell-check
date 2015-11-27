@@ -151,7 +151,7 @@ function readSettings(): SpellMDSettings {
                                     "Complex Expression": "Warning",\
                                     "Hyphen Required": "Error"\
                                     },\
-                                "languageIds": ["markdown","text"]\
+                                "languageIDs": ["markdown","text"]\
                               }');
         }
         

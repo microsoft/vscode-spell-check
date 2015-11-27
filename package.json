@@ -3,13 +3,13 @@
 	"displayName": "Spelling and Grammar Checker",
 	"description": "Detect mistakes as you type and suggest fixes - great for Markdown.  Now supports 5 languages.",
 	"icon": "images/spellIcon.svg",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"publisher": "seanmcbreen",
 	"galleryBanner": {
 		"color": "#5c2d91",
 		"theme": "dark"
 	},
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "SEE LICENSE IN LICENSE.txt",
 	"bugs": {
 		"url": "https://github.com/Microsoft/vscode-spell-check/issues",
 		"email": "smcbreen@microsoft.com"
