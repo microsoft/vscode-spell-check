@@ -21,6 +21,6 @@
 	"languageIDs" : [
 		"markdown",
 		"latex",
-		"text"
+		"plaintext"
 	]
 }
