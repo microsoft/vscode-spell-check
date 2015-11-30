@@ -1,5 +1,7 @@
 # Spelling and Grammar Checker
 
+>**Alert:** This extension uses the [teacher](http://github.com/vesln/teacher) node module which calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over unencrypted HTTP. Do not use this extension with sensitive or private documents.
+
 ## Functionality
 
 Load up a Markdown file [or additional file types you have configured in the config file] and get highlights and hovers for issues.  Checking will occur as you type and the extension will highlight both spelling mistakes as well as grammatical errors.
