@@ -1,6 +1,7 @@
 # Spelling and Grammar Checker
 
->**Alert:** This extension uses the [teacher](http://github.com/vesln/teacher) node module which calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over unencrypted HTTP. Do not use this extension with sensitive or private documents.
+>**Notice:** This extension uses the [teacher](http://github.com/vesln/teacher) node module which calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over unencrypted HTTP. Do not use this extension with sensitive or private documents.
+
 
 ## Functionality
 
@@ -10,9 +11,9 @@ Once enabled errors are highlighted and you will see an indicator in the `status
 
 ![Navigation](images/navigate.gif)
 
-When your cursor is within an error  you can get suggested fixes by hitting `Alt+.`.
+When your cursor is within an error  you can get suggested fixes (or add the word to the ignore list) by hitting `Alt+.`.
 
-A configuration file is supported to allow for an: ignore words list, custom mapping between error types and VS Code diagnostic types, additional file types to check and changing from English to other languages.
+A configuration file is supported to allow for an: ignore words list, custom mapping between error types and VS Code diagnostic types, additional file types to check, changing from English to other languages and support for ignoring entire blocks of text.
 
 
 ## Install
@@ -25,26 +26,50 @@ Open up VS Code and hit `F1` and type `ext` select install and type `spell` hit 
 
 ## Get a Suggestion
 
-If an error is indicated then hit `Alt+.` to get a suggest list and select the item you wold like to replace the error.
+If an error is highlighted you can hit `Alt+.` to get a suggest list.  Choose from the selections and the text will be updated.  Alternatively you can add the highlighted work to the ignore words list/dictionary.
 
-If you get an error message saying the language ID is not supported you can add that language ID to the config file.
+If you get an error message saying the language ID is not supported e.g. `latex` you can add that language ID to the `languageIDs` section of the config file.
 
 
 
 ## Add to Ignore list/Dictionary
 
-The suggestion list has an option that will let you add words to the dictionary.  Select that item and the `spell.json` config file will have the word added to it and the document will be checked again.  
+The suggestion list has an option that will let you add words to the dictionary.  Select that item and the `spell.json` config file `ignoreWordsList` array will have the word added to it and the document will be checked again.  
 
 >**Tip:** You can manually edit that file if you wish to remove them.
+
+
+
+## Ignoring Common Blocks
+
+Sometimes you may want to ignore an entire block of text.  This can be useful for avoiding code blocks, links and other common chunks.  To do this there is a section of the config file `ignoreRegExp` where you can put an array of expressions.  These expressions will be matched in te document (in the order of the array) and any matches will not be checked for problems.
+
+> **Tip:** The regular expression are stored in JSON format so the strings must be escaped - typically meaning `\` should be replaced by `\\\\`.
+
+Here are a few example strings for Markdown... The first 5 ignore a set of easy to match links, the last one ignores code blocks.
+
+```
+    "ignoreRegExp": [
+        "/(http\\\\S*)/gm",
+        "/\\\\(.*.png\\\\)/g",
+        "/\\\\(.*.gif\\\\)/g",
+        "/\\\\(.*.md\\\\)/g",
+        "/\\\\(.*.jpg\\\\)/g",
+        "/^((`{3}\\\\s*)(\\\\w+)?(\\\\s*([\\\\w\\\\W]+?)\\\\n*)\\\\2)\\\\n*(?:[^\\\\S\\\\w\\\\s]|$)/gm"
+    ]
+```
 
 
 ## Change the language for checking
 
 > kudos to [@alefragnani](https://github.com/alefragnani) for this contribution.
 
-Hit `F1` and type `Spell C...` choose the `Change Language` option from the drop down menu.  You will be presented with a list of available languages, once you select one the settings file will update as will the issue detection and suggestions.
+Hit `F1` and type `Spell C...` choose the `Change Language` option from the drop down menu.  You will be presented with a list of available languages.  Select one from the list and the new language will be used for error detection and suggestions.  
+
+Under the covers the language for checking is stored in the config fil in the `language` field.
 
 ![Change Language](images/change-language.png)
+
 
 
 
@@ -56,14 +81,16 @@ A file named `spell.json` should go in the `.vscode` directory. It has the follo
 
 * **version** incase I change the format
 * **ignoreWordsList** an array of strings that represents words not to check
+* **ignoreRegExp** an array of regular expressions.  This array is empty by default.
 * **mistakeTypeToStatus** we detect many error types and this is how they map to VS Code severities
 * **language** support for five languages (this can be changed also through `F1` an type `Spell: Choose Language`)
-  * "en" = English, [default]
-  * "fr" = French,
-  * "de" = German,
-  * "pt" = Portuguese,
-  * "es" = Spanish
+  * `en` = English, [default]
+  * `fr` = French,
+  * `de` = German,
+  * `pt` = Portuguese,
+  * `es` = Spanish
 * **languageIDs** configure more file types to check e.g. `plaintext` or `latex` (`markdown` is the default)
+
 
 >**Tip:** You can find the language ID for a file easily by triggering a suggest `Alt+.` in a file that is not in the list.  The error message will include the language ID you should add to the config file.
 
@@ -95,3 +122,5 @@ There are a few common errors people hit working with this.
 ### 0.3.0 Added ability to **change language** that is checked (`en`, `de`, `fr`, ...)
 
 ### 0.4.0 Added **add to ignore list** in suggest box, added ability to **check additional file types** (`languageIDs`), bug fixes
+
+### 0.5.0 Added a new set of settings to **ignore chunks of text** that match provided regular expressions.

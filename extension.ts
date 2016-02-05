@@ -8,6 +8,7 @@ interface SpellMDSettings {
     ignoreWordsList: string[];
     mistakeTypeToStatus: {}[];
     languageIDs: string[];
+    ignoreRegExp: string[];
 }
 
 interface SPELLMDProblem {
@@ -55,6 +56,9 @@ function CreateDiagnostics(document: TextDocument) {
 
     // clear existing problems
     problems = [];
+    
+    // removeUnwantedText before processing
+    docToCheck = removeUnwantedText(docToCheck);
     
     // the spell checker ignores a lot of chars so removing them aids in problem matching
     docToCheck = docToCheck.replace(/[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
@@ -151,13 +155,15 @@ function readSettings(): SpellMDSettings {
                                     "Complex Expression": "Warning",\
                                     "Hyphen Required": "Error"\
                                     },\
-                                "languageIDs": ["markdown","text"]\
+                                "languageIDs": ["markdown","text"],\
+                                "ignoreRegExp": []\
                               }');
         }
         
         //gracefully handle new fields
         if(cfg.languageIDs===undefined) cfg.languageIDs = ["markdown"];
         if(cfg.language===undefined) cfg.language = "en";
+        if(cfg.ignoreRegExp===undefined) cfg.ignoreRegExp = [];
         
         return cfg;
     }
@@ -166,7 +172,8 @@ function readSettings(): SpellMDSettings {
         language: cfg.language,
         ignoreWordsList: cfg.ignoreWordsList,
         mistakeTypeToStatus: cfg.mistakeTypeToStatus,
-        languageIDs: cfg.languageIDs
+        languageIDs: cfg.languageIDs,
+        ignoreRegExp: cfg.ignoreRegExp
     }
 }
 
@@ -340,5 +347,37 @@ function changeLanguage() {
         updateSettings();
         CreateDiagnostics(window.activeTextEditor.document);
     });
-    
+}
+
+
+
+function removeUnwantedText(content: string): string {
+    let match;
+    let expressions = settings.ignoreRegExp;
+
+    for (let x = 0; x < expressions.length; x++) {
+        // Convert the JSON of regExp Strings into a real RegExp
+        let flags = expressions[x].replace(/.*\/([gimy]*)$/, '$1');
+        let pattern = expressions[x].replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
+        
+        pattern = pattern.replace(/\\\\/g, "\\");
+        let regex = new RegExp(pattern, flags);
+
+        match = content.match(regex);
+        if (match !== null) {
+            // look for a multi line match and build enough lines into the replacement
+            for (let i = 0; i < match.length; i++) {
+                let spaces: string;
+                let lines = match[i].split("\n").length;
+
+                if (lines > 1) {
+                    spaces = new Array(lines).join("\n");
+                } else {
+                    spaces = new Array(match[i].length + 1).join(" ");
+                }
+                content = content.replace(match[i], spaces);
+            }
+        }
+    }
+    return content;
 }
