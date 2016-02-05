@@ -55,6 +55,7 @@
 		"teacher": "^0.0.1"
 	},
 	"devDependencies": {
-		"vscode": "next"
+		"vscode": "0.10.x",
+        "typescript": "^1.6.2"
 	}
 }
