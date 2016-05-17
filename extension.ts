@@ -189,19 +189,14 @@ function convertSeverity(mistakeType: string): number {
     switch (mistakeTypeToStatus[mistakeType]) {
         case "Warning":
             return DiagnosticSeverity.Warning;
-            break;
         case "Information":
             return DiagnosticSeverity.Information;
-            break;
         case "Error":
             return DiagnosticSeverity.Error;
-            break;
         case "Hint":
             return DiagnosticSeverity.Hint;
-            break;
         default:
             return DiagnosticSeverity.Information;
-            break;
     }
 }
 
@@ -302,22 +297,16 @@ function getLanguageDescription(initial: string): string {
     switch (initial) {
         case "en":
             return "English";
-            break;
         case "fr":
             return "French";
-            break;
         case "de":
             return "German";
-            break;
         case "pt":
             return "Portuguese";
-            break;
         case "es":
             return "Spanish";
-            break;
         default:
             return "English";
-            break;
     }
 }
 
