@@ -129,7 +129,7 @@ function suggestFix() {
         }
     });
     } else {
-        window.showInformationMessage("LanguageID: " + d.languageId + " not suported for spell checking.")
+        window.showInformationMessage("LanguageID: " + d.languageId + " not supported for spell checking.")
     }
 }
 
