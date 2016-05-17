@@ -1,1 +1,35 @@
-{"language":"en","ignoreWordsList":["vscode","Markdown"],"mistakeTypeToStatus":{"Passive voice":"Error","Spelling":"Error","Complex Expression":"Warning","Hidden Verbs":"Information","Hyphen Required":"Error","Redundant Expression":"Information","Did you mean...":"Information","Repeated Word":"Error","Missing apostrophe":"Error","Cliches":"Warning","Missing Word":"Warning","Make I uppercase":"Error"},"languageIDs":["markdown","latex","plaintext"],"ignoreRegExp":["/`(kb.*?)`/g","/(http\\\\S*)/gm","/\\\\(.*.png\\\\)/g","/\\\\(.*.gif\\\\)/g","/\\\\(.*.md\\\\)/g","/\\\\(.*.jpg\\\\)/g","/^((`{3}\\\\s*)(\\\\w+)?(\\\\s*([\\\\w\\\\W]+?)\\\\n*)\\\\2)\\\\n*(?:[^\\\\S\\\\w\\\\s]|$)/gm"]}
+{
+    "language": "en",
+    "ignoreWordsList": [
+        "vscode",
+        "Markdown"
+    ],
+    "mistakeTypeToStatus": {
+        "Passive voice": "Error",
+        "Spelling": "Error",
+        "Complex Expression": "Warning",
+        "Hidden Verbs": "Information",
+        "Hyphen Required": "Error",
+        "Redundant Expression": "Information",
+        "Did you mean...": "Information",
+        "Repeated Word": "Error",
+        "Missing apostrophe": "Error",
+        "Cliches": "Warning",
+        "Missing Word": "Warning",
+        "Make I uppercase": "Error"
+    },
+    "languageIDs": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ],
+    "ignoreRegExp": [
+        "/`(kb.*?)`/g",
+        "/(http\\\\S*)/gm",
+        "/\\\\(.*.png\\\\)/g",
+        "/\\\\(.*.gif\\\\)/g",
+        "/\\\\(.*.md\\\\)/g",
+        "/\\\\(.*.jpg\\\\)/g",
+        "/^((`{3}\\\\s*)(\\\\w+)?(\\\\s*([\\\\w\\\\W]+?)\\\\n*)\\\\2)\\\\n*(?:[^\\\\S\\\\w\\\\s]|$)/gm"
+    ]
+}
