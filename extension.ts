@@ -27,11 +27,11 @@ interface SPELLMDProblem {
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
 let CONFIGFILE = workspace.rootPath + "/.vscode/spell.json";
-  
+
 // Activate the extension
 export function activate(disposables: Disposable[]) {
     console.log("Spell and Grammar checker active...");
-    
+
     // TODO [p2] Currently the only way to refresh is to reload window add a wacher
     settings = readSettings();
 
@@ -56,14 +56,12 @@ function CreateDiagnostics(document: TextDocument) {
 
     // clear existing problems
     problems = [];
-    
-    // removeUnwantedText before processing
-    docToCheck = removeUnwantedText(docToCheck);
-    
-    // the spell checker ignores a lot of chars so removing them aids in problem matching
-    docToCheck = docToCheck.replace(/[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
 
     if (settings.languageIDs.indexOf(document.languageId) !== -1) {
+        // removeUnwantedText before processing the spell checker ignores a lot of chars so removing them aids in problem matching
+        docToCheck = removeUnwantedText(docToCheck);
+        docToCheck = docToCheck.replace(/[`\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
+
         spellcheckDocument(docToCheck, (problems) => {
             for (let x = 0; x < problems.length; x++) {
                 let problem = problems[x];
@@ -86,48 +84,48 @@ function suggestFix() {
     let e = window.activeTextEditor;
     let d = e.document;
     let sel = e.selection;
-    
-    if (settings.languageIDs.indexOf(d.languageId) !== -1) {
-    // TODO [p1] need to actually use the error context i.e. diagnostic start and end in the current location
-    // The issue is that some grammar errors will be multiple words currently I just ignore them
-    let wordRange: Range = d.getWordRangeAtPosition(sel.active);
-    let word: string = d.getText(wordRange);
-        
-    // find the key data for the specific issue
-    let problem: SPELLMDProblem = problems.filter(function(obj) {
-        return obj.error === word;
-    })[0];
 
-    if (problem !== undefined) {
-        if (problem.suggestions.length > 0) {
-            for (let i = 0; i < problem.suggestions.length; i++) {
-                items.push({ label: problem.suggestions[i], description: "Replace [" + word + "] with [" + problem.suggestions[i] + "]" });
+    if (settings.languageIDs.indexOf(d.languageId) !== -1) {
+        // TODO [p1] need to actually use the error context i.e. diagnostic start and end in the current location
+        // The issue is that some grammar errors will be multiple words currently I just ignore them
+        let wordRange: Range = d.getWordRangeAtPosition(sel.active);
+        let word: string = d.getText(wordRange);
+
+        // find the key data for the specific issue
+        let problem: SPELLMDProblem = problems.filter(function (obj) {
+            return obj.error === word;
+        })[0];
+
+        if (problem !== undefined) {
+            if (problem.suggestions.length > 0) {
+                for (let i = 0; i < problem.suggestions.length; i++) {
+                    items.push({ label: problem.suggestions[i], description: "Replace [" + word + "] with [" + problem.suggestions[i] + "]" });
+                }
+            } else {
+                items.push({ label: null, description: "No suggestions available sorry..." });
             }
+
         } else {
             items.push({ label: null, description: "No suggestions available sorry..." });
         }
 
-    } else {
-        items.push({ label: null, description: "No suggestions available sorry..." });
-    }
-    
-    items.push({ label: "ADD TO IGNORE LIST", description: "Add [" + word + "] to ignore list." })
-    
-    // replace the text with the selection
-    window.showQuickPick(items).then((selection) => {
-        if (!selection) return;
-        if (selection.label === "ADD TO IGNORE LIST") {
-            settings.ignoreWordsList.push(word);
-            updateSettings();
-            CreateDiagnostics(window.activeTextEditor.document);
-        } else {
-            if (selection.label !== null) {
-                e.edit(function(edit) {
-                    edit.replace(wordRange, selection.label);
-                });
+        items.push({ label: "ADD TO IGNORE LIST", description: "Add [" + word + "] to ignore list." })
+
+        // replace the text with the selection
+        window.showQuickPick(items).then((selection) => {
+            if (!selection) return;
+            if (selection.label === "ADD TO IGNORE LIST") {
+                settings.ignoreWordsList.push(word);
+                updateSettings();
+                CreateDiagnostics(window.activeTextEditor.document);
+            } else {
+                if (selection.label !== null) {
+                    e.edit(function (edit) {
+                        edit.replace(wordRange, selection.label);
+                    });
+                }
             }
-        }
-    });
+        });
     } else {
         window.showInformationMessage("LanguageID: " + d.languageId + " not supported for spell checking.")
     }
@@ -159,12 +157,12 @@ function readSettings(): SpellMDSettings {
                                 "ignoreRegExp": []\
                               }');
         }
-        
+
         //gracefully handle new fields
-        if(cfg.languageIDs===undefined) cfg.languageIDs = ["markdown"];
-        if(cfg.language===undefined) cfg.language = "en";
-        if(cfg.ignoreRegExp===undefined) cfg.ignoreRegExp = [];
-        
+        if (cfg.languageIDs === undefined) cfg.languageIDs = ["markdown"];
+        if (cfg.language === undefined) cfg.language = "en";
+        if (cfg.ignoreRegExp === undefined) cfg.ignoreRegExp = [];
+
         return cfg;
     }
 
@@ -208,7 +206,7 @@ function spellcheckDocument(content: string, cb: (report: SPELLMDProblem[]) => v
     let problemMessage: string;
     let detectedErrors: any = {};
     let teach = new t.Teacher(settings.language);
-    teach.check(content, function(err, docProblems) {
+    teach.check(content, function (err, docProblems) {
         if (docProblems != null) {
             for (let i = 0; i < docProblems.length; i++) {
                 if (settings.ignoreWordsList.indexOf(docProblems[i].string) === -1) {
@@ -312,7 +310,7 @@ function getLanguageDescription(initial: string): string {
 
 function changeLanguage() {
     let items: QuickPickItem[] = [];
-        
+
     items.push({ label: getLanguageDescription("en"), description: "en" });
     items.push({ label: getLanguageDescription("fr"), description: "fr" });
     items.push({ label: getLanguageDescription("de"), description: "de" });
@@ -327,11 +325,11 @@ function changeLanguage() {
         }
     }
     items.splice(index, 1);
-    
+
     // replace the text with the selection
     window.showQuickPick(items).then((selection) => {
         if (!selection) return;
- 
+
         settings.language = selection.description;
         updateSettings();
         CreateDiagnostics(window.activeTextEditor.document);
@@ -348,7 +346,7 @@ function removeUnwantedText(content: string): string {
         // Convert the JSON of regExp Strings into a real RegExp
         let flags = expressions[x].replace(/.*\/([gimy]*)$/, '$1');
         let pattern = expressions[x].replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
-        
+
         pattern = pattern.replace(/\\\\/g, "\\");
         let regex = new RegExp(pattern, flags);
 

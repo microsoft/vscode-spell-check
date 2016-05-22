@@ -106,7 +106,7 @@ Here are some ideas - fell free to add more...
 3. On folder open check every file in the background
 	1. Have an `excludeFilesList` in the options
 4. When adding a word also add plurals/sentence case etc
-5. Have a delay before checking so calls are less eager
+
 
 
 ## Known Issues
@@ -119,8 +119,17 @@ There are a few common errors people hit working with this.
 
 ## Update Log
 
-### 0.3.0 Added ability to **change language** that is checked (`en`, `de`, `fr`, ...)
+### 0.5.1
+**Performance improvement** for activation event.
 
-### 0.4.0 Added **add to ignore list** in suggest box, added ability to **check additional file types** (`languageIDs`), bug fixes
+### 0.5.0 
+Added a new set of settings to **ignore chunks of text** that match provided regular expressions.
 
-### 0.5.0 Added a new set of settings to **ignore chunks of text** that match provided regular expressions.
+### 0.4.0 
+Added **add to ignore list** in suggest box, added ability to **check additional file types** (`languageIDs`), bug fixes
+
+### 0.3.0 
+Added ability to **change language** that is checked (`en`, `de`, `fr`, ...)
+
+
+
