@@ -119,8 +119,8 @@ There are a few common errors people hit working with this.
 
 ## Update Log
 
-### 0.6.0
-**Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.
+### 0.6.1
+**Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.  Increased visibility of web service use [After the Deadline] in the description.
 
 ### 0.5.1
 **Performance improvement** for activation event.
