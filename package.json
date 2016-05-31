@@ -3,7 +3,7 @@
 	"displayName": "Spelling and Grammar Checker",
 	"description": "Detect mistakes as you type and suggest fixes - great for Markdown or any text file.",
 	"icon": "images/spellIcon.svg",
-	"version": "0.5.1",
+	"version": "0.6.0",
 	"publisher": "seanmcbreen",
 	"galleryBanner": {
 		"color": "#5c2d91",
@@ -53,7 +53,7 @@
 		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
 	},
 	"dependencies": {
-		"teacher": "^0.0.1"
+		"teacher": "^0.1.0"
 	},
 	"devDependencies": {
 		"vscode": "0.10.x",

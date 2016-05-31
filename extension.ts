@@ -77,7 +77,7 @@ function CreateDiagnostics(document: TextDocument) {
 }
 
 // when on an error suggest fixes
-// TODO: [p2] This should really use a quickfix/lighbulb and not a QuickPick
+// TODO: [p2] This should really use a quickfix/lightbulb and not a QuickPick
 function suggestFix() {
     let opts: QuickPickOptions = { matchOnDescription: true, placeHolder: "Here's a suggestion or two for..." };
     let items: QuickPickItem[] = [];
