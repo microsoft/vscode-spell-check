@@ -2,6 +2,9 @@
 
 >**Notice:** This extension uses the [teacher](http://github.com/vesln/teacher) node module which calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over encrypted HTTPS. I do not recommend using this extension with sensitive or private documents.
 
+![Current Version](http://vsmarketplacebadge.apphb.com/version/seanmcbreen.spell.svg)
+![Install Count](http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg)
+![Open Issues](http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg) 
 
 ## Functionality
 
@@ -119,8 +122,8 @@ There are a few common errors people hit working with this.
 
 ## Update Log
 
-### 0.6.1
-**Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.  Increased visibility of web service use [After the Deadline] in the description.
+### 0.6.2
+**Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.  Increased visibility of web service use [After the Deadline] in the description.  Added badges to `readme.md`.
 
 ### 0.5.1
 **Performance improvement** for activation event.
