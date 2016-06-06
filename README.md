@@ -2,9 +2,9 @@
 
 >**Notice:** This extension uses the [teacher](http://github.com/vesln/teacher) node module which calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over encrypted HTTPS. I do not recommend using this extension with sensitive or private documents.
 
-![Current Version](http://vsmarketplacebadge.apphb.com/version/seanmcbreen.spell.svg)
-![Install Count](http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg)
-![Open Issues](http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg) 
+[![Current Version](http://vsmarketplacebadge.apphb.com/version/seanmcbreen.spell.svg)](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
+[![Install Count](http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg)](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
+[![Open Issues](http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg) ](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
 
 ## Functionality
 
