@@ -5,18 +5,18 @@
         "Markdown"
     ],
     "mistakeTypeToStatus": {
-        "Passive voice": "Error",
-        "Spelling": "Error",
+        "Passive voice": "Hint",
+        "Spelling": "Warning",
         "Complex Expression": "Warning",
         "Hidden Verbs": "Information",
-        "Hyphen Required": "Error",
+        "Hyphen Required": "Warning",
         "Redundant Expression": "Information",
         "Did you mean...": "Information",
-        "Repeated Word": "Error",
-        "Missing apostrophe": "Error",
+        "Repeated Word": "Warning",
+        "Missing apostrophe": "Warning",
         "Cliches": "Warning",
         "Missing Word": "Warning",
-        "Make I uppercase": "Error"
+        "Make I uppercase": "Warning"
     },
     "languageIDs": [
         "markdown",

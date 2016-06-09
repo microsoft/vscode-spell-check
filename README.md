@@ -6,6 +6,8 @@
 [![Install Count](http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg)](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
 [![Open Issues](http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg) ](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
 
+
+
 ## Functionality
 
 Load up a Markdown file [or additional file types you have configured in the config file] and get highlights and hovers for issues.  Checking will occur as you type and the extension will highlight both spelling mistakes as well as grammatical errors.
@@ -16,10 +18,10 @@ Once enabled errors are highlighted and you will see an indicator in the `status
 
 When your cursor is within an error  you can get suggested fixes (or add the word to the ignore list) by hitting `Alt+.`.
 
-A configuration file is supported to allow for an: ignore words list, custom mapping between error types and VS Code diagnostic types, additional file types to check, changing from English to other languages and support for ignoring entire blocks of text.
+>**Tip:** A configuration file is supported to allow for an: ignore words list, custom mapping between error types and VS Code diagnostic types, additional file types to check, changing from English to other languages and support for ignoring entire blocks of text.
 
 
-## Install
+## Installing the Extension
 
 Open up VS Code and hit `F1` and type `ext` select install and type `spell` hit enter and reload window to enable.
 
@@ -31,27 +33,61 @@ Open up VS Code and hit `F1` and type `ext` select install and type `spell` hit 
 
 If an error is highlighted you can hit `Alt+.` to get a suggest list.  Choose from the selections and the text will be updated.  Alternatively you can add the highlighted work to the ignore words list/dictionary.
 
-If you get an error message saying the language ID is not supported e.g. `latex` you can add that language ID to the `languageIDs` section of the config file.
+![Suggest a Fix](images/suggest-fix.png)
+
+>**Tip:** If you get an error message saying the language ID is not supported e.g. `latex` you can add that language ID to the `languageIDs` section of the config file.
 
 
 
-## Add to Ignore list/Dictionary
+## Change the Language for Checking
 
-The suggestion list has an option that will let you add words to the dictionary.  Select that item and the `spell.json` config file `ignoreWordsList` array will have the word added to it and the document will be checked again.  
+Hit `F1` and type `Spell C...` choose the `Change Language` option from the drop down menu.  You will be presented with a list of available languages.  Select one from the list and the new language will be used for error detection and suggestions.  
 
->**Tip:** You can manually edit that file if you wish to remove them.
+Under the covers the language for checking is stored in the config fil in the `language` field.
+ 
+![Change Language](images/language.png)
+
+> kudos to [@alefragnani](https://github.com/alefragnani) for this contribution.
+
+
+## Config File
+
+The extension has a rich configuration file to customize the experience.  The file is named `spell.json` should go in the `.vscode` directory. 
+
+>**Tip:** If you make manual updated you need to reload the VS Code window i.e. `F1` followed by `Reload Window`.
+
+It has the following sections/capabilities:
+
+* **ignoreWordsList** an array of strings that represents words not to check (this can be added to via the `Alt+.` suggest fix menu).
+* **ignoreRegExp** an array of regular expressions for text to not check.  This array is empty by default.
+* **mistakeTypeToStatus** we detect many error types and this is how they map to VS Code severities.
+* **language** support for five languages (this can be changed also through `F1` an type `Spell: Choose Language`)
+* **languageIDs** configure more file types to check e.g. `plaintext` or `latex` (`markdown` is the default)
+
+More details on each setting are provided below.  A [sample file](https://github.com/Microsoft/vscode-spell-check/blob/master/.vscode/spell.json) is included in this repo.  The extension has a [set of defaults](https://github.com/Microsoft/vscode-spell-check/blob/master/extension.ts#L146) as well.
 
 
 
-## Ignoring Common Blocks
+### Add to Ignore List/Dictionary
+
+The suggestion list provides an option to add words to the dictionary.  Select that item and the `spell.json` config file `ignoreWordsList` array will have the word added to it and the document will be checked again.  
+
+``` json
+    "ignoreWordsList": [
+        "vscode",
+        "Markdown"
+    ]
+```
+
+>**Tip:** You can manually edit that file if you wish to remove words.
+
+### Ignoring Common Blocks
 
 Sometimes you may want to ignore an entire block of text.  This can be useful for avoiding code blocks, links and other common chunks.  To do this there is a section of the config file `ignoreRegExp` where you can put an array of expressions.  These expressions will be matched in te document (in the order of the array) and any matches will not be checked for problems.
 
-> **Tip:** The regular expression are stored in JSON format so the strings must be escaped - typically meaning `\` should be replaced by `\\\\`.
-
 Here are a few example strings for Markdown... The first 5 ignore a set of easy to match links, the last one ignores code blocks.
 
-```
+``` json
     "ignoreRegExp": [
         "/(http\\\\S*)/gm",
         "/\\\\(.*.png\\\\)/g",
@@ -62,42 +98,66 @@ Here are a few example strings for Markdown... The first 5 ignore a set of easy 
     ]
 ```
 
-
-## Change the language for checking
-
-> kudos to [@alefragnani](https://github.com/alefragnani) for this contribution.
-
-Hit `F1` and type `Spell C...` choose the `Change Language` option from the drop down menu.  You will be presented with a list of available languages.  Select one from the list and the new language will be used for error detection and suggestions.  
-
-Under the covers the language for checking is stored in the config fil in the `language` field.
-
-![Change Language](images/change-language.png)
+> **Tip:** The regular expression are stored in JSON format so the strings must be escaped - typically meaning `\` should be replaced by `\\\\`.
 
 
+### Changing Indicator Types
 
+The extension is capable of a broad array of checks.  You can choose how these map to VS Code diagnostic types.
+* `Error`: A red underline will be rendered - these can get in the way for smoothly running a debug session
+* `Warning`: A green underline will be rendered whetre the error is. 
+* `Information`: An information list is available in the status bar (no underlines).
+* `Hint`: No visible indicator.
 
-## Configuration File
+``` json
+    "mistakeTypeToStatus": {
+        "Passive voice": "Hint",
+        "Spelling": "Error",
+        "Complex Expression": "Warning",
+        "Hidden Verbs": "Information",
+        "Hyphen Required": "Warning",
+        "Redundant Expression": "Information",
+        "Did you mean...": "Information",
+        "Repeated Word": "Warning",
+        "Missing apostrophe": "Warning",
+        "Cliches": "Warning",
+        "Missing Word": "Warning",
+        "Make I uppercase": "Warning"
+    }
+```
 
-A [sample file](https://github.com/Microsoft/vscode-spell-check/blob/master/.vscode/spell.json) is included in this repo.  The code has a [set of defaults](https://github.com/Microsoft/vscode-spell-check/blob/master/extension.ts#L109) as well.
+>**Tip:** Any missing indicator type from the list above will default to a `Hint`. 
 
-A file named `spell.json` should go in the `.vscode` directory. It has the following sections:
+### Changing the Language For Checking
 
-* **version** incase I change the format
-* **ignoreWordsList** an array of strings that represents words not to check
-* **ignoreRegExp** an array of regular expressions.  This array is empty by default.
-* **mistakeTypeToStatus** we detect many error types and this is how they map to VS Code severities
-* **language** support for five languages (this can be changed also through `F1` an type `Spell: Choose Language`)
+The following values can be added in the config file to set the language that should be used for checking. 
+
   * `en` = English, [default]
   * `fr` = French,
   * `de` = German,
   * `pt` = Portuguese,
   * `es` = Spanish
-* **languageIDs** configure more file types to check e.g. `plaintext` or `latex` (`markdown` is the default)
 
+``` json
+    "language": "en"
+```
+
+
+### Checking Additional File Types
+
+you can configure the extension to work on additional file types by altering a setting.
+
+``` json
+    "languageIDs": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ]
+```
 
 >**Tip:** You can find the language ID for a file easily by triggering a suggest `Alt+.` in a file that is not in the list.  The error message will include the language ID you should add to the config file.
 
-For now if you update the config file you need to reload the window for changes to take effect e.g. `F1` and type `reload` then hit enter.
+
 
 
 ## Backlog
@@ -121,6 +181,9 @@ There are a few common errors people hit working with this.
 
 
 ## Update Log
+
+### 0.7.0
+Improved `readme.md` covering off settings for the `spell.json` file better.  If no mapping for an error type is assigned in the config file `Hint` will be used vs `Information` as the default.  Reduced the number of service queries with a delay routine.  Auto activated the extension and checking on first install.
 
 ### 0.6.2
 **Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.  Increased visibility of web service use [After the Deadline] in the description.  Added badges to `readme.md`.

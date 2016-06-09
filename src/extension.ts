@@ -1,7 +1,9 @@
-import {workspace, languages, Diagnostic, DiagnosticSeverity, Location, Range, Disposable, TextDocument, Position, QuickPickOptions, QuickPickItem, window, commands} from 'vscode';
+'use strict';
+import * as vscode from 'vscode';
+import * as t from 'teacher';
+import * as fs from 'fs';
+import { Delayer } from './delayer';
 
-let t = require('teacher');
-import fs = require('fs');
 
 interface SpellMDSettings {
     language: string,
@@ -23,35 +25,59 @@ interface SPELLMDProblem {
     suggestions: string[];
 }
 
+interface Map<V> {
+	[key: string]: V;
+}
+
 // GLOBALS ///////////////////
 let settings: SpellMDSettings;
 let problems: SPELLMDProblem[] = [];
-let CONFIGFILE = workspace.rootPath + "/.vscode/spell.json";
+let CONFIGFILE = vscode.workspace.rootPath + "/.vscode/spell.json";
+let validationDelayer: Map<Delayer<void>> = Object.create(null); // key is the URI of the document
 
 // Activate the extension
-export function activate(disposables: Disposable[]) {
+export function activate(disposables: vscode.Disposable[]) {
     console.log("Spell and Grammar checker active...");
 
-    // TODO [p2] Currently the only way to refresh is to reload window add a wacher
+    // TODO [p2] Currently the only way to refresh is to reload window, add a wacher
     settings = readSettings();
 
-    commands.registerCommand('Spell.suggestFix', suggestFix);
-    commands.registerCommand('Spell.changeLanguage', changeLanguage);
+    vscode.commands.registerCommand('Spell.suggestFix', suggestFix);
+    vscode.commands.registerCommand('Spell.changeLanguage', changeLanguage);
+
+    // On first load instantly trigger
+    TriggerCreateDiagnostics(vscode.window.activeTextEditor.document);
 
     // Link into the two critical lifecycle events
-    workspace.onDidChangeTextDocument(event => {
-        CreateDiagnostics(event.document)
+    vscode.workspace.onDidChangeTextDocument(event => {
+        TriggerCreateDiagnostics(event.document)
     }, undefined, disposables);
 
-    workspace.onDidOpenTextDocument(event => {
-        CreateDiagnostics(event)
+    vscode.workspace.onDidOpenTextDocument(event => {
+        TriggerCreateDiagnostics(event)
     }, undefined, disposables);
 }
 
+
 // Itterate through the errors and populate the diagnostics
-function CreateDiagnostics(document: TextDocument) {
-    let diagnostics: Diagnostic[] = [];
-    let spellingErrors = languages.createDiagnosticCollection("spelling");
+function TriggerCreateDiagnostics(document: vscode.TextDocument) {
+	let d = validationDelayer[document.uri.toString()];
+    
+    if (!d) {
+        d = new Delayer<any>(150);
+        validationDelayer[document.uri.toString()] = d;
+    }
+    d.trigger(() => {
+        CreateDiagnostics(document);
+        delete validationDelayer[document.uri.toString()];
+    });
+}
+
+
+// Itterate through the errors and populate the diagnostics
+function CreateDiagnostics(document: vscode.TextDocument) {
+    let diagnostics: vscode.Diagnostic[] = [];
+    let spellingErrors = vscode.languages.createDiagnosticCollection("spelling");
     let docToCheck = document.getText();
 
     // clear existing problems
@@ -65,10 +91,10 @@ function CreateDiagnostics(document: TextDocument) {
         spellcheckDocument(docToCheck, (problems) => {
             for (let x = 0; x < problems.length; x++) {
                 let problem = problems[x];
-                let lineRange = new Range(problem.startLine, problem.startChar, problem.endLine, problem.endChar);
-                let loc = new Location(document.uri, lineRange);
+                let lineRange = new vscode.Range(problem.startLine, problem.startChar, problem.endLine, problem.endChar);
+                let loc = new vscode.Location(document.uri, lineRange);
 
-                let diag = new Diagnostic(lineRange, problem.message, convertSeverity(problem.type));
+                let diag = new vscode.Diagnostic(lineRange, problem.message, convertSeverity(problem.type));
                 diagnostics.push(diag);
             }
             spellingErrors.set(document.uri, diagnostics);
@@ -79,16 +105,16 @@ function CreateDiagnostics(document: TextDocument) {
 // when on an error suggest fixes
 // TODO: [p2] This should really use a quickfix/lightbulb and not a QuickPick
 function suggestFix() {
-    let opts: QuickPickOptions = { matchOnDescription: true, placeHolder: "Here's a suggestion or two for..." };
-    let items: QuickPickItem[] = [];
-    let e = window.activeTextEditor;
+    let opts: vscode.QuickPickOptions = { matchOnDescription: true, matchOnDetail: true, placeHolder: "Here's a suggestion or two for..." };
+    let items: vscode.QuickPickItem[] = [];
+    let e = vscode.window.activeTextEditor;
     let d = e.document;
     let sel = e.selection;
 
     if (settings.languageIDs.indexOf(d.languageId) !== -1) {
         // TODO [p1] need to actually use the error context i.e. diagnostic start and end in the current location
         // The issue is that some grammar errors will be multiple words currently I just ignore them
-        let wordRange: Range = d.getWordRangeAtPosition(sel.active);
+        let wordRange: vscode.Range = d.getWordRangeAtPosition(sel.active);
         let word: string = d.getText(wordRange);
 
         // find the key data for the specific issue
@@ -112,12 +138,12 @@ function suggestFix() {
         items.push({ label: "ADD TO IGNORE LIST", description: "Add [" + word + "] to ignore list." })
 
         // replace the text with the selection
-        window.showQuickPick(items).then((selection) => {
+        vscode.window.showQuickPick(items).then((selection) => {
             if (!selection) return;
             if (selection.label === "ADD TO IGNORE LIST") {
                 settings.ignoreWordsList.push(word);
                 updateSettings();
-                CreateDiagnostics(window.activeTextEditor.document);
+                CreateDiagnostics(vscode.window.activeTextEditor.document);
             } else {
                 if (selection.label !== null) {
                     e.edit(function (edit) {
@@ -127,7 +153,7 @@ function suggestFix() {
             }
         });
     } else {
-        window.showInformationMessage("LanguageID: " + d.languageId + " not supported for spell checking.")
+        vscode.window.showInformationMessage("LanguageID: " + d.languageId + " not supported for spell checking.")
     }
 }
 
@@ -149,9 +175,9 @@ function readSettings(): SpellMDSettings {
                                 "ignoreWordsList": [], \
                                 "mistakeTypeToStatus": { \
                                     "Spelling": "Error", \
-                                    "Passive Voice": "Warning", \
-                                    "Complex Expression": "Warning",\
-                                    "Hyphen Required": "Error"\
+                                    "Passive Voice": "Information", \
+                                    "Complex Expression": "Information",\
+                                    "Hyphen Required": "Warning"\
                                     },\
                                 "languageIDs": ["markdown","text"],\
                                 "ignoreRegExp": []\
@@ -186,15 +212,15 @@ function convertSeverity(mistakeType: string): number {
 
     switch (mistakeTypeToStatus[mistakeType]) {
         case "Warning":
-            return DiagnosticSeverity.Warning;
+            return vscode.DiagnosticSeverity.Warning;
         case "Information":
-            return DiagnosticSeverity.Information;
+            return vscode.DiagnosticSeverity.Information;
         case "Error":
-            return DiagnosticSeverity.Error;
+            return vscode.DiagnosticSeverity.Error;
         case "Hint":
-            return DiagnosticSeverity.Hint;
+            return vscode.DiagnosticSeverity.Hint;
         default:
-            return DiagnosticSeverity.Information;
+            return vscode.DiagnosticSeverity.Hint;
     }
 }
 
@@ -309,7 +335,7 @@ function getLanguageDescription(initial: string): string {
 }
 
 function changeLanguage() {
-    let items: QuickPickItem[] = [];
+    let items: vscode.QuickPickItem[] = [];
 
     items.push({ label: getLanguageDescription("en"), description: "en" });
     items.push({ label: getLanguageDescription("fr"), description: "fr" });
@@ -327,12 +353,12 @@ function changeLanguage() {
     items.splice(index, 1);
 
     // replace the text with the selection
-    window.showQuickPick(items).then((selection) => {
+    vscode.window.showQuickPick(items).then((selection) => {
         if (!selection) return;
 
         settings.language = selection.description;
         updateSettings();
-        CreateDiagnostics(window.activeTextEditor.document);
+        CreateDiagnostics(vscode.window.activeTextEditor.document);
     });
 }
 
