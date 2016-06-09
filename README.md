@@ -54,15 +54,15 @@ Under the covers the language for checking is stored in the config fil in the `l
 
 The extension has a rich configuration file to customize the experience.  The file is named `spell.json` should go in the `.vscode` directory. 
 
->**Tip:** If you make manual updated you need to reload the VS Code window i.e. `F1` followed by `Reload Window`.
+>**Tip:** If you make manual updated you need to reload the VS Code window ie. `F1` followed by `Reload Window`.
 
 It has the following sections/capabilities:
 
-* **ignoreWordsList** an array of strings that represents words not to check (this can be added to via the `Alt+.` suggest fix menu).
-* **ignoreRegExp** an array of regular expressions for text to not check.  This array is empty by default.
-* **mistakeTypeToStatus** we detect many error types and this is how they map to VS Code severities.
-* **language** support for five languages (this can be changed also through `F1` an type `Spell: Choose Language`)
-* **languageIDs** configure more file types to check e.g. `plaintext` or `latex` (`markdown` is the default)
+* `ignoreWordsList` an array of strings that represents words not to check (this can be added to via the `Alt+.` suggest fix menu).
+* `ignoreRegExp` an array of regular expressions for text to not check.  This array is empty by default.
+* `mistakeTypeToStatus` we detect many error types and this is how they map to VS Code severities.
+* `language` support for five languages (this can be changed also through `F1` and type `Spell: Choose Language`)
+* `languageIDs` configure more file types to check e.g. `plaintext` or `latex` (`markdown` is the default)
 
 More details on each setting are provided below.  A [sample file](https://github.com/Microsoft/vscode-spell-check/blob/master/.vscode/spell.json) is included in this repo.  The extension has a [set of defaults](https://github.com/Microsoft/vscode-spell-check/blob/master/extension.ts#L146) as well.
 
@@ -83,7 +83,7 @@ The suggestion list provides an option to add words to the dictionary.  Select t
 
 ### Ignoring Common Blocks
 
-Sometimes you may want to ignore an entire block of text.  This can be useful for avoiding code blocks, links and other common chunks.  To do this there is a section of the config file `ignoreRegExp` where you can put an array of expressions.  These expressions will be matched in te document (in the order of the array) and any matches will not be checked for problems.
+Sometimes you may want to ignore an entire block of text.  This can be useful for avoiding code blocks, links and other common chunks.  To do this there is a section in the config file `ignoreRegExp` where you can put an array of expressions.  These expressions will be matched in te document (in the order of the array) and any matches will not be checked for problems.
 
 Here are a few example strings for Markdown... The first 5 ignore a set of easy to match links, the last one ignores code blocks.
 
@@ -105,9 +105,9 @@ Here are a few example strings for Markdown... The first 5 ignore a set of easy 
 
 The extension is capable of a broad array of checks.  You can choose how these map to VS Code diagnostic types.
 * `Error`: A red underline will be rendered - these can get in the way for smoothly running a debug session
-* `Warning`: A green underline will be rendered whetre the error is. 
+* `Warning`: A green underline will be rendered where the error is. 
 * `Information`: An information list is available in the status bar (no underlines).
-* `Hint`: No visible indicator.
+* `Hint`: A hover with the error details will pop-up when you mouse over the error.
 
 ``` json
     "mistakeTypeToStatus": {
@@ -145,13 +145,14 @@ The following values can be added in the config file to set the language that sh
 
 ### Checking Additional File Types
 
-you can configure the extension to work on additional file types by altering a setting.
+It is possible to configure the extension to work on additional file types by altering a setting.
 
 ``` json
     "languageIDs": [
         "markdown",
         "latex",
-        "plaintext"
+        "plaintext",
+        "todo"
     ]
 ```
 
@@ -183,10 +184,10 @@ There are a few common errors people hit working with this.
 ## Update Log
 
 ### 0.7.0
-Improved `readme.md` covering off settings for the `spell.json` file better.  If no mapping for an error type is assigned in the config file `Hint` will be used vs `Information` as the default.  Reduced the number of service queries with a delay routine.  Auto activated the extension and checking on first install.
+Improved `README.md` covering off settings for the `spell.json` file better.  If no mapping for an error type is assigned in the config file `Hint` will be used vs `Information` as the default.  Reduced the number of service queries with a delay routine.  Auto activated the extension and checking on first install.
 
 ### 0.6.2
-**Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.  Increased visibility of web service use [After the Deadline] in the description.  Added badges to `readme.md`.
+**Support for HTTPS** documents are now submitted over the wire for checking using HTTPS.  Increased visibility of web service use [After the Deadline] in the description.  Added badges to `README.md`.
 
 ### 0.5.1
 **Performance improvement** for activation event.
