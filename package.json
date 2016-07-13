@@ -20,7 +20,8 @@
 		"url": "https://github.com/Microsoft/vscode-spell-check.git"
 	},
 	"categories": [
-		"Linters", "Other"
+		"Linters",
+		"Other"
 	],
 	"engines": {
 		"vscode": "^1.0.0"
@@ -32,17 +33,13 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "Spell.suggestFix",
-				"title": "Spell Checker: Suggestions"
-			},
-			{
-				"command": "Spell.changeLanguage",
+				"command": "SpellProvider.changeLanguage",
 				"title": "Spell Checker: Change Language"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "Spell.suggestFix",
+				"command": "editor.action.quickFix",
 				"key": "Alt+."
 			}
 		]
@@ -58,6 +55,6 @@
 	},
 	"devDependencies": {
 		"vscode": "^0.11.0",
-        "typescript": "^1.6.2"
+		"typescript": "^1.6.2"
 	}
 }
