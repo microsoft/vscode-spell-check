@@ -243,7 +243,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
                                 "ignoreWordsList": [], \
                                 "mistakeTypeToStatus": { \
                                             "Passive voice": "Hint", \
-                                            "Spelling": "Warning", \
+                                            "Spelling": "Error", \
                                             "Complex Expression": "Disable", \
                                             "Hidden Verbs": "Information", \
                                             "Hyphen Required": "Disable", \
