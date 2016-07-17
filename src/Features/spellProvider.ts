@@ -3,6 +3,8 @@
 import * as vscode from 'vscode';
 import * as t from 'teacher';
 import * as fs from 'fs';
+import * as path from 'path';
+import * as mkdirp from 'mkdirp';
 import { Delayer } from './delayer';
 
 let DEBUG: boolean = true;
@@ -196,6 +198,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         if (settings.ignoreWordsList.indexOf(word) === -1) {
             if (DEBUG) console.log("Word is not found in current dictionary -> adding")
             settings.ignoreWordsList.push(word);
+            mkdirp.sync(path.dirname(SpellProvider.CONFIGFILE));
             fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings));
             if (DEBUG) console.log("Settings written to: " + SpellProvider.CONFIGFILE);
         }
@@ -441,6 +444,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
             settings.language = selection.description;
             if(DEBUG) console.log("Attempting to change to: " + settings.language);
+            mkdirp.sync(path.dirname(SpellProvider.CONFIGFILE));
             fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings));
 
             vscode.window.showInformationMessage("Changed settings to " + getLanguageDescription(settings.language) 
