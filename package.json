@@ -51,6 +51,7 @@
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
+		"mkdirp": "^0.5.1",
 		"teacher": "^0.1.0"
 	},
 	"devDependencies": {
