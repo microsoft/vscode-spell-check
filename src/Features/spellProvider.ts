@@ -196,7 +196,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         if (settings.ignoreWordsList.indexOf(word) === -1) {
             if (DEBUG) console.log("Word is not found in current dictionary -> adding")
             settings.ignoreWordsList.push(word);
-            fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings));
+            fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings, null, 2));
             if (DEBUG) console.log("Settings written to: " + SpellProvider.CONFIGFILE);
         }
         this.TriggerDiagnostics(document);
@@ -441,7 +441,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
             settings.language = selection.description;
             if(DEBUG) console.log("Attempting to change to: " + settings.language);
-            fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings));
+            fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings, null, 2));
 
             vscode.window.showInformationMessage("Changed settings to " + getLanguageDescription(settings.language) 
                  + " reload window by pressing 'F1' + 'Reload Window' to activate.")
