@@ -5,7 +5,7 @@ import * as t from 'teacher';
 import * as fs from 'fs';
 import { Delayer } from './delayer';
 
-let DEBUG: boolean = true;
+let DEBUG: boolean = false;
 
 interface SpellSettings {
     language: string,
@@ -35,11 +35,12 @@ let problems: SpellProblem[] = [];
 let settings: SpellSettings;
 let diagnosticMap = {};
 let spellDiagnostics: vscode.DiagnosticCollection;
+let CONFIGFOLDER = "/.vscode";
+let CONFIGFILE = "/spell.json";
 
 export default class SpellProvider implements vscode.CodeActionProvider {
     private validationDelayer: Map<Delayer<void>> = Object.create(null); // key is the URI of the document
 
-    private static CONFIGFILE = vscode.workspace.rootPath + "/.vscode/spell.json";
     private static addToDictionaryCmdId: string = 'SpellProvider.addToDictionary';
     private static fixOnSuggestionCmdId: string = 'SpellProvider.fixOnSuggestion';
     private static changeLanguageCmdId: string = 'SpellProvider.changeLanguage';
@@ -56,11 +57,11 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
         //TODO: Watch file
         //let fw: vscode.workspace.file
-        //this.fw = vscode.workspace.createFileSystemWatcher(SpellProvider.CONFIGFILE, false, false)
+        //this.fw = vscode.workspace.createFileSystemWatcher(vscode.workspace.rootPath + CONFIGFILE, false, false)
 
         this.addToDictionaryCmd = vscode.commands.registerCommand(SpellProvider.addToDictionaryCmdId, this.addToDictionary.bind(this));
-        this.fixOnSuggestionCmd = vscode.commands.registerCommand(SpellProvider.fixOnSuggestionCmdId, this.fixOnSuggestion);
-        this.changeLanguageCmd  = vscode.commands.registerCommand(SpellProvider.changeLanguageCmdId, this.changeLanguage);
+        this.fixOnSuggestionCmd = vscode.commands.registerCommand(SpellProvider.fixOnSuggestionCmdId, this.fixOnSuggestion.bind(this));
+        this.changeLanguageCmd  = vscode.commands.registerCommand(SpellProvider.changeLanguageCmdId, this.changeLanguage.bind(this));
 
         subscriptions.push(this);
 
@@ -196,11 +197,23 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         if (settings.ignoreWordsList.indexOf(word) === -1) {
             if (DEBUG) console.log("Word is not found in current dictionary -> adding")
             settings.ignoreWordsList.push(word);
-            fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings));
-            if (DEBUG) console.log("Settings written to: " + SpellProvider.CONFIGFILE);
+            this.writeSettings();
         }
         this.TriggerDiagnostics(document);
     }
+
+    private writeSettings(): void {
+        try {
+            fs.mkdirSync(vscode.workspace.rootPath + CONFIGFOLDER);
+            if (DEBUG) console.log("Created new settings folder: " + CONFIGFOLDER);
+            vscode.window.showInformationMessage("SPELL: Created a new settings file: " + CONFIGFOLDER + CONFIGFILE)
+        } catch (e) {
+            if (DEBUG) console.log("Folder for settings existed: " + CONFIGFOLDER);
+        }
+        fs.writeFileSync(vscode.workspace.rootPath + CONFIGFOLDER + CONFIGFILE, JSON.stringify(settings));
+        if (DEBUG) console.log("Settings written to: " + CONFIGFILE);
+    }
+
 
     private fixOnSuggestion(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, error: string, suggestion: string): any {
         if (DEBUG) console.log("Attempting to fix file:" + document.uri.toString());
@@ -228,7 +241,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
     }
 
     private readSettings(): SpellSettings {
-        let cfg: any = readJsonFile(SpellProvider.CONFIGFILE);
+        let cfg: any = readJsonFile(vscode.workspace.rootPath + CONFIGFILE);
 
         function readJsonFile(file): any {
             try {
@@ -441,10 +454,9 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
             settings.language = selection.description;
             if(DEBUG) console.log("Attempting to change to: " + settings.language);
-            fs.writeFileSync(SpellProvider.CONFIGFILE, JSON.stringify(settings));
-
-            vscode.window.showInformationMessage("Changed settings to " + getLanguageDescription(settings.language) 
-                 + " reload window by pressing 'F1' + 'Reload Window' to activate.")
+            this.writeSettings();
+            vscode.window.showInformationMessage("To start checking in " + getLanguageDescription(settings.language) 
+                 + " reload window by pressing 'F1' + 'Reload Window'.")
         });
 
         function getLanguageDescription(initial: string): string {

@@ -125,6 +125,9 @@ Here is the complete default set of configuration options:
 
 ## Update Log
 
+### 0.8.1
+Fixed a bug where if no `.vscode` directory existed then changing language, adding to dictionary etc. would fail.  Also added an info message when the new folder is created.
+
 ### 0.8.0
 This is a big in terms of the UX - suggestions are now code actions so `Ctrl+.` or `Alt+.` both work well to trigger and suggestions are now much more in-line and keyboard friendly.  Additionally you can disable problem types in the configuration and the included settings have been tweeked a little.
 
