@@ -67,7 +67,7 @@ It is possible to configure the extension to work on additional file types by al
     ]
 ```
 
->**Tip:** Other common options include: `todo`, `plantext`, `latex`.  I don;t recommend using this checker for programming files.  THere are better options in the marketplace.
+>**Tip:** Other common options include: `todo`, `plaintext`, `latex`.  I don't recommend using this checker for programming files.  There are better options in the marketplace.
 
 ## Checking in German, French, Portuguese or Spanish
 > kudos to [@alefragnani](https://github.com/alefragnani) for this contribution.
@@ -113,7 +113,7 @@ Here is the complete default set of configuration options:
     },
     "languageIDs": [
         "markdown",
-        "text"
+        "plaintext"
     ],
     "ignoreRegExp": [
         "/\\(.*\\.(jpg|jpeg|png|md|gif|JPG|JPEG|PNG|MD|GIF)\\)/g",
