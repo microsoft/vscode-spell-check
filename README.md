@@ -125,6 +125,9 @@ Here is the complete default set of configuration options:
 
 ## Update Log
 
+### 0.8.5
+Adopted a number of contributions from [@cpetrov](https://github.com/cpetrov) that improved settings file formatting, resolved some setting file errors and corrected the base plaintext setting THANKYOU!
+
 ### 0.8.4
 Fixed a bug in reading user settings that caused them to be ignored and overwritter if you added a word to dictionary or changed language.  Added some additional meta data to the extension manifest for the marketplace.
 

@@ -3,7 +3,7 @@
 	"displayName": "Spelling and Grammar Checker",
 	"description": "Uses a web service to detect mistakes and suggest fixes - great for Markdown or any text file.",
 	"icon": "images/spellIcon.svg",
-	"version": "0.8.4",
+	"version": "0.8.5",
 	"publisher": "seanmcbreen",
 	"galleryBanner": {
 		"color": "#5c2d91",
