@@ -80,7 +80,7 @@ the spell checker can operate in different language modes.  Hit `F1` and type `S
 
 ## Config File Reference
 
-The extension has a rich configuration file to customize the experience.  The file is named `spell.json` should go in the `.vscode` directory.  The easiest way to create it is to add a word to the dictionary, a version of the file with the defaults will be created for you.
+The extension has a rich configuration file to customize the experience.  The file is named `spell.json` should go in the `.vscode` directory in the project workspace.  The easiest way to create it is to add a word to the dictionary, a version of the file with the defaults will be created for you.
 
 >**Tip:** If you make manual updated you need to reload the VS Code window ie. `F1` followed by `Reload Window`.
 
