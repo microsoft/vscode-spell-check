@@ -38,6 +38,9 @@ let spellDiagnostics: vscode.DiagnosticCollection;
 let CONFIGFOLDER = "/.vscode";
 let CONFIGFILE = "/spell.json";
 
+let statusBarItem: vscode.StatusBarItem;
+let IsDisabled: boolean = false;
+
 export default class SpellProvider implements vscode.CodeActionProvider {
     private validationDelayer: Map<Delayer<void>> = Object.create(null); // key is the URI of the document
 
@@ -52,16 +55,19 @@ export default class SpellProvider implements vscode.CodeActionProvider {
     public activate(context: vscode.ExtensionContext) {
         if (DEBUG) console.log("Spell and Grammar checker active...");
         let subscriptions: vscode.Disposable[] = context.subscriptions;
+        let toggleCmd: vscode.Disposable;
+        
+        vscode.commands.registerCommand("toggleSpell", this.toggleSpell.bind(this));
+        statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+        statusBarItem.command = "toggleSpell";
+        statusBarItem.tooltip = "Toggle Spell Checker On/Off for supported files";
+        statusBarItem.show();
 
         settings = this.readSettings();
 
-        //TODO: Watch file
-        //let fw: vscode.workspace.file
-        //this.fw = vscode.workspace.createFileSystemWatcher(vscode.workspace.rootPath + CONFIGFILE, false, false)
-
         this.addToDictionaryCmd = vscode.commands.registerCommand(SpellProvider.addToDictionaryCmdId, this.addToDictionary.bind(this));
         this.fixOnSuggestionCmd = vscode.commands.registerCommand(SpellProvider.fixOnSuggestionCmdId, this.fixOnSuggestion.bind(this));
-        this.changeLanguageCmd  = vscode.commands.registerCommand(SpellProvider.changeLanguageCmdId, this.changeLanguage.bind(this));
+        this.changeLanguageCmd = vscode.commands.registerCommand(SpellProvider.changeLanguageCmdId, this.changeLanguage.bind(this));
 
         subscriptions.push(this);
 
@@ -84,9 +90,32 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         }
     }
 
+    public toggleSpell() {
+        if (IsDisabled) {
+            IsDisabled = false;
+            this.TriggerDiagnostics(vscode.window.activeTextEditor.document);
+        } else {
+            IsDisabled = true;
+            if(DEBUG) console.log("Clearing diagnostics as Spell was disabled.")
+            spellDiagnostics.clear();
+        }
+        this.updateStatus();
+    }
+
+    public updateStatus() {
+        if (IsDisabled) {
+            statusBarItem.text = "$(book) Spell Disabled";
+            statusBarItem.color = "orange";
+        } else {
+            statusBarItem.text = "$(book) Spell Enabled";
+            statusBarItem.color = "white";
+        }
+    }
+
     public dispose(): void {
         spellDiagnostics.clear();
         spellDiagnostics.dispose();
+        statusBarItem.dispose();
         this.addToDictionaryCmd.dispose();
         this.fixOnSuggestionCmd.dispose();
         this.changeLanguageCmd.dispose();
@@ -139,7 +168,17 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
     // Itterate through the errors and populate the diagnostics - this has a delayer to lower the traffic
     private TriggerDiagnostics(document: vscode.TextDocument) {
-        if (settings.languageIDs.indexOf(document.languageId) === -1) return;
+        // Do nothing if the doc type is not one we should test
+        if (settings.languageIDs.indexOf(document.languageId) === -1) {
+            // if(DEBUG) console.log("Hiding status due to language ID [" + document.languageId + "]");
+            // //statusBarItem.hide();
+            return;
+        } else {
+            this.updateStatus();
+            // statusBarItem.show();
+        }
+
+        if (IsDisabled) return;
 
         let d = this.validationDelayer[document.uri.toString()];
 
@@ -163,10 +202,9 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         let diagnostics: vscode.Diagnostic[] = [];
         let docToCheck = document.getText();
 
-        if (DEBUG) console.log("Starting new check on: " + document.fileName + "[" + document.languageId + "]");
+        if (DEBUG) console.log("Starting new check on: " + document.fileName + " [" + document.languageId + "]");
         problems = [];
 
-        //if (settings.languageIDs.indexOf(document.languageId) !== -1) {
         // removeUnwantedText before processing the spell checker ignores a lot of chars so removing them aids in problem matching
         docToCheck = this.removeUnwantedText(docToCheck);
         docToCheck = docToCheck.replace(/[\"!#$%&()*+,.\/:;<=>?@\[\]\\^_{|}]/g, " ");
@@ -213,7 +251,6 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         fs.writeFileSync(vscode.workspace.rootPath + CONFIGFOLDER + CONFIGFILE, JSON.stringify(settings, null, 2));
         if (DEBUG) console.log("Settings written to: " + CONFIGFILE);
     }
-
 
     private fixOnSuggestion(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, error: string, suggestion: string): any {
         if (DEBUG) console.log("Attempting to fix file:" + document.uri.toString());
@@ -453,10 +490,10 @@ export default class SpellProvider implements vscode.CodeActionProvider {
             if (!selection) return;
 
             settings.language = selection.description;
-            if(DEBUG) console.log("Attempting to change to: " + settings.language);
+            if (DEBUG) console.log("Attempting to change to: " + settings.language);
             this.writeSettings();
-            vscode.window.showInformationMessage("To start checking in " + getLanguageDescription(settings.language) 
-                 + " reload window by pressing 'F1' + 'Reload Window'.")
+            vscode.window.showInformationMessage("To start checking in " + getLanguageDescription(settings.language)
+                + " reload window by pressing 'F1' + 'Reload Window'.")
         });
 
         function getLanguageDescription(initial: string): string {
