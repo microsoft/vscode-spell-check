@@ -5,7 +5,7 @@ import * as t from 'teacher';
 import * as fs from 'fs';
 import { Delayer } from './delayer';
 
-let DEBUG: boolean = false;
+let DEBUG: boolean = true;
 
 interface SpellSettings {
     language: string,
@@ -210,7 +210,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         } catch (e) {
             if (DEBUG) console.log("Folder for settings existed: " + CONFIGFOLDER);
         }
-        fs.writeFileSync(vscode.workspace.rootPath + CONFIGFOLDER + CONFIGFILE, JSON.stringify(settings));
+        fs.writeFileSync(vscode.workspace.rootPath + CONFIGFOLDER + CONFIGFILE, JSON.stringify(settings, null, 2));
         if (DEBUG) console.log("Settings written to: " + CONFIGFILE);
     }
 
@@ -241,7 +241,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
     }
 
     private readSettings(): SpellSettings {
-        let cfg: any = readJsonFile(vscode.workspace.rootPath + CONFIGFILE);
+        let cfg: any = readJsonFile(vscode.workspace.rootPath + CONFIGFOLDER + CONFIGFILE);
 
         function readJsonFile(file): any {
             try {

@@ -125,6 +125,9 @@ Here is the complete default set of configuration options:
 
 ## Update Log
 
+### 0.8.4
+Fixed a bug in reading user settings that caused them to be ignored and overwritter if you added a word to dictionary or changed language.  Added some additional meta data to the extension manifest for the marketplace.
+
 ### 0.8.1
 Fixed a bug where if no `.vscode` directory existed then changing language, adding to dictionary etc. would fail.  Also added an info message when the new folder is created.
 

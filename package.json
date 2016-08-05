@@ -3,7 +3,7 @@
 	"displayName": "Spelling and Grammar Checker",
 	"description": "Uses a web service to detect mistakes and suggest fixes - great for Markdown or any text file.",
 	"icon": "images/spellIcon.svg",
-	"version": "0.8.1",
+	"version": "0.8.4",
 	"publisher": "seanmcbreen",
 	"galleryBanner": {
 		"color": "#5c2d91",
@@ -22,6 +22,23 @@
 	"categories": [
 		"Linters",
 		"Other"
+	],
+	"badges": [
+		{
+			"url": "http://vsmarketplacebadge.apphb.com/version/seanmcbreen.spell.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell",
+			"description": "Extension version"
+		},
+		{
+			"url": "http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell",
+			"description": "Extension installs"
+		},
+		{
+			"url": "http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell#review-details",
+			"description": "Extension Rating"
+		}
 	],
 	"engines": {
 		"vscode": "^1.0.0"
