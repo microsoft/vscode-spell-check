@@ -448,8 +448,11 @@ export default class SpellProvider implements vscode.CodeActionProvider {
             pattern = pattern.replace(/\\\\/g, "\\");
             let regex = new RegExp(pattern, flags);
 
+            if(DEBUG) console.log("Ignoreing ["+ expressions[x] +"]");
+
             match = content.match(regex);
             if (match !== null) {
+                if(DEBUG) console.log("Found [" + match.length + "] matches for removal");
                 // look for a multi line match and build enough lines into the replacement
                 for (let i = 0; i < match.length; i++) {
                     let spaces: string;
