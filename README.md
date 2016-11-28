@@ -1,20 +1,18 @@
 # Spelling and Grammar Checker
 
->**Notice:** This extension uses the [teacher](http://github.com/vesln/teacher) node module which calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over **encrypted HTTPS**. That said, I do not recommend using this extension with sensitive or private documents.
+>**Notice:** This extension calls the [After The Deadline](http://afterthedeadline.com) service to check for spelling and grammatical errors.  Document text is sent to the service over **encrypted HTTPS**. That said, I do not recommend using this extension with sensitive or private documents.
 
-[![Current Version](http://vsmarketplacebadge.apphb.com/version/seanmcbreen.spell.svg)](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
-[![Install Count](http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg)](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
-[![Open Issues](http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg)](https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell)
+>**Known Issue:** The underlying service has not been very reliable recently - as a result this extension is no longer as reliable as it was - apologies, your mileage may vary.  Pull Requests and fixes welcome.
 
 ## Functionality 
 
 Load up a Markdown or PlainText file [or additional file types you have configured in the config file] and get highlights and hovers for issues.  Checking will occur as you type and the extension will highlight spelling mistakes and optionally grammatical errors.  Once enabled you will see an indicator in the `status bar`, the `problems - error & warning lists` as well as in the `right ruler`.  You can also navigate through errors with `F8`.
 
->**NOTE:** Although not included in the image below there is also a status bar option to enable or disable the extension dynamically.  This will not enable the checker for additional file types,  instead it is for temporarily disabling it for the file types defined in the config file.
+>**NOTE:** Although not included in the image below there is also a status bar option to enable or disable the extension dynamically.  This will not enable the checker for additional file types,  instead it is for temporarily disabling it for the file types defined in the config file. 
 
 ![Demo](images/SpellDemo.gif)
 
-When your cursor is within an identified `problem` you will get a `light-bulb` indicating that there are actions you can take.  You can trigger a list of suggestions (or add the word to the ignore list) by hitting `Ctrl+.`, `Alt+.` or clicking on the lightbulb.  You will also get a hover notification when you mouse over an issue.
+When your cursor is within an identified `problem` you will get a `light-bulb` indicating that there are actions you can take.  You can trigger a list of suggestions (or add the word to the ignore list) by hitting `Ctrl+.`, `Alt+.` or clicking on the lightbulb.  You will also get a hover notification when you mouse over an issue. 
 
 
 >**Tip:** A configuration file is supported to allow for an: ignore words list, custom mapping between error types and VS Code diagnostic types, additional file types to check, changing from English to other languages and support for ignoring entire blocks of text.  Read on to find out the defaults.
