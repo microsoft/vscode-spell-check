@@ -1,8 +1,8 @@
 # CHANGELOG: Spell Check
 
 
-### 0.9.0 
-Changed **English URI** for checking as previous one stoped working.  Replaced teacher module to speed up adoption of new URI.  Moved change history to [CHANGELOG](CHANGELOG.md).
+### 0.9.1 
+Changed English URI for checking as previous one stoped working.  Replaced teacher module to speed up adoption of new URI.  Moved change history to [CHANGELOG](CHANGELOG.md).  Fix for error on empty document well when toggling - thx [DonJayamanne](https://github.com/DonJayamanne).
 
 ### 0.8.6
 Added a status bar adornment to enable the checker to be turned on and off.  Note actual checking still requires the current file type to be in the config file.

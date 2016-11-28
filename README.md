@@ -126,7 +126,8 @@ Here is the complete default set of configuration options:
 
 ## Update Log
 
-### 0.9.0 Changed English URI for checking as previous one stoped working.  Replaced teacher module to speed up adoption of new URI.  Moved change history to [CHANGELOG](CHANGELOG.md).
+### 0.9.1 
+Changed English URI for checking as previous one stoped working.  Replaced teacher module to speed up adoption of new URI.  Moved change history to [CHANGELOG](CHANGELOG.md).  Fix for error on empty document well when toggling - thx [DonJayamanne](https://github.com/DonJayamanne).
 
 
 
