@@ -93,7 +93,9 @@ export default class SpellProvider implements vscode.CodeActionProvider {
     public toggleSpell() {
         if (IsDisabled) {
             IsDisabled = false;
-            this.TriggerDiagnostics(vscode.window.activeTextEditor.document);
+            if (vscode.window.activeTextEditor){
+                this.TriggerDiagnostics(vscode.window.activeTextEditor.document);
+            }
         } else {
             IsDisabled = true;
             if(DEBUG) console.log("Clearing diagnostics as Spell was disabled.")
