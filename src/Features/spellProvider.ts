@@ -1,11 +1,11 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as t from 'teacher';
 import * as fs from 'fs';
 import { Delayer } from './delayer';
+import * as callATD from './callATD';
 
-let DEBUG: boolean = true;
+let DEBUG: boolean = false;
 
 interface SpellSettings {
     language: string,
@@ -104,10 +104,10 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
     public updateStatus() {
         if (IsDisabled) {
-            statusBarItem.text = "$(book) Spell Disabled";
+            statusBarItem.text = `$(book) Spell Disabled [${settings.language}]`;
             statusBarItem.color = "orange";
         } else {
-            statusBarItem.text = "$(book) Spell Enabled";
+            statusBarItem.text = `$(book) Spell Enabled [${settings.language}]`;
             statusBarItem.color = "white";
         }
     }
@@ -347,13 +347,13 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         }
     }
 
-    // teacher does not return a line number and results are not in order - most code is about 'guessing' a line number
+    // ATD does not return a line number and results are not in order - most code is about 'guessing' a line number
     private spellcheckDocument(content: string, cb: (report: SpellProblem[]) => void): void {
         let problemMessage: string;
         let detectedErrors: any = {};
-        let teach = new t.Teacher(settings.language);
 
-        teach.check(content, function (err, docProblems) {
+        callATD.check(settings.language, content, function (error, docProblems) {
+            if (error != null) console.log(error);
             if (docProblems != null) {
                 for (let i = 0; i < docProblems.length; i++) {
 
