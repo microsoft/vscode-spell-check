@@ -92,6 +92,7 @@ the config file has the following sections/capabilities:
 * `mistakeTypeToStatus` we detect many error types and this is how they map to VS Code Diagnostics.
 * `language` change the dictionary to use e.g. French.
 * `languageIDs` configure more file types to check
+* `languageURIs` optionally specify language URIs for your [After The Deadline](http://afterthedeadline.com) server.
 
 Here is the complete default set of configuration options:
 ``` json
