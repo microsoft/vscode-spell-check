@@ -9,6 +9,7 @@ let DEBUG: boolean = false;
 
 interface SpellSettings {
     language: string,
+    languageURIs: {}[],
     ignoreWordsList: string[];
     mistakeTypeToStatus: {}[];
     languageIDs: string[];
@@ -325,6 +326,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
         return {
             language: cfg.language,
+            languageURIs: cfg.languageURIs,
             ignoreWordsList: cfg.ignoreWordsList,
             mistakeTypeToStatus: cfg.mistakeTypeToStatus,
             languageIDs: cfg.languageIDs,
@@ -354,7 +356,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         let problemMessage: string;
         let detectedErrors: any = {};
 
-        callATD.check(settings.language, content, function (error, docProblems) {
+        callATD.check(GetURI(settings.language), content, function (error, docProblems) {
             if (error != null) console.log(error);
             if (docProblems != null) {
                 for (let i = 0; i < docProblems.length; i++) {
@@ -433,6 +435,19 @@ export default class SpellProvider implements vscode.CodeActionProvider {
                 } else {
                     return lengthUpToFirstIndex + nextOccurrence;
                 }
+            }
+        }
+
+        function GetURI(language: String): String {
+            let languageURIs = settings.languageURIs || [];
+
+            switch (language) {
+                case 'en': return languageURIs['en'] || 'https://www.polishmywriting.com/proxy.php?url=/checkDocument';
+                case 'fr': return languageURIs['fr'] || 'https://fr.service.afterthedeadline.com/checkDocument';
+                case 'de': return languageURIs['de'] || 'https://de.service.afterthedeadline.com/checkDocument';
+                case 'pt': return languageURIs['pt'] || 'https://pt.service.afterthedeadline.com/checkDocument';
+                case 'es': return languageURIs['es'] || 'https://es.service.afterthedeadline.com/checkDocument';
+                default: return 'https://www.polishmywriting.com/proxy.php?url=/checkDocument';
             }
         }
 

@@ -6,23 +6,11 @@ let crypto = require('crypto');
 let os = require('os');
 
 
-function GetURI(language: String): String {
-    switch (language) {
-        case 'en': return 'https://www.polishmywriting.com/proxy.php?url=/checkDocument';
-        case 'fr': return 'https://fr.service.afterthedeadline.com/checkDocument';
-        case 'de': return 'https://de.service.afterthedeadline.com/checkDocument';
-        case 'pt': return 'https://pt.service.afterthedeadline.com/checkDocument';
-        case 'es': return 'https://es.service.afterthedeadline.com/checkDocument';
-        default: return 'https://www.polishmywriting.com/proxy.php?url=/checkDocument';
-    }
-}
-
-
-function PostToATD(content: String, language: String, fn) {
+function PostToATD(content: String, languageURI: String, fn) {
     let key = crypto.createHash('sha1').update(os.hostname()).digest('hex');
     let parser = new xml2js.Parser;
 
-    request({ method: "POST", url: GetURI(language), form: { data: content, key: key } },
+    request({ method: "POST", url: languageURI, form: { data: content, key: key } },
         function (error, response, body) {
             if (error) return fn(error, null);
 
@@ -34,7 +22,7 @@ function PostToATD(content: String, language: String, fn) {
     );
 }
 
-export function check(language, content, fn) {
+export function check(languageURI, content, fn) {
 
     let ignored = [
         'bias language', 'cliches', 'complex expression',
@@ -43,7 +31,7 @@ export function check(language, content, fn) {
         'redundant expression'
     ];
 
-    PostToATD(content, language, function (error, data) {
+    PostToATD(content, languageURI, function (error, data) {
         if (error || !data || !data.error) return fn(error, null);
         if (!Array.isArray(data.error)) data.error = [data.error];
 
