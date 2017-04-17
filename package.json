@@ -1,7 +1,7 @@
 {
 	"name": "Spell",
-	"displayName": "Spelling and Grammar Checker",
-	"description": "Uses a web service to detect mistakes and suggest fixes - great for Markdown or any text file.",
+	"displayName": "[DEPRECATED] Spelling and Grammar Checker",
+	"description": "[DEPRECATED] Web service is no longer active - Try `Code Spellchecker`.  See README for details.",
 	"icon": "images/spellIcon.svg",
 	"version": "0.9.1",
 	"publisher": "seanmcbreen",
@@ -19,33 +19,11 @@
 		"type": "git",
 		"url": "https://github.com/Microsoft/vscode-spell-check.git"
 	},
-	"categories": [
-		"Linters",
-		"Other"
-	],
-	"badges": [
-		{
-			"url": "http://vsmarketplacebadge.apphb.com/version/seanmcbreen.spell.svg",
-			"href": "https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell",
-			"description": "Extension version"
-		},
-		{
-			"url": "http://vsmarketplacebadge.apphb.com/installs/seanmcbreen.spell.svg",
-			"href": "https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell",
-			"description": "Extension installs"
-		},
-		{
-			"url": "http://vsmarketplacebadge.apphb.com/rating/seanmcbreen.spell.svg",
-			"href": "https://marketplace.visualstudio.com/items?itemName=seanmcbreen.Spell#review-details",
-			"description": "Extension Rating"
-		}
-	],
 	"engines": {
-		"vscode": "^1.0.0"
+		"vscode": "^1.6.0"
 	},
 	"activationEvents": [
-		"*",
-		"onLanguage:markdown"
+		"*"
 	],
 	"contributes": {
 		"commands": [
@@ -60,21 +38,35 @@
 				"command": "editor.action.quickFix",
 				"key": "Alt+."
 			}
-		]
+		],
+		"configuration": {
+			"title": "Spell options",
+			"properties": {
+				"spell.StopAsking": {
+					"type": "boolean",
+					"default": false,
+					"description": "Spell: Don't ask again for deprication warning"
+				}
+			}
+		}
 	},
 	"main": "./out/extension",
 	"scripts": {
-		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+		"vscode:prepublish": "tsc -p ./",
+		"compile": "tsc -watch -p ./",
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
 		"teacher": "^0.1.0",
 		"request": "2.9.152",
-		"xml2js": "0.1.13"
+		"xml2js": "0.1.13",
+		"open": "^0.0.5"
 	},
 	"devDependencies": {
-		"vscode": "^0.11.0",
-		"typescript": "^2.0.10"
+		"typescript": "^2.0.3",
+		"vscode": "^1.0.0",
+		"mocha": "^2.3.3",
+		"@types/node": "^6.0.40",
+		"@types/mocha": "^2.2.32"
 	}
 }

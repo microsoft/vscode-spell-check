@@ -41,6 +41,15 @@ let CONFIGFILE = "/spell.json";
 let statusBarItem: vscode.StatusBarItem;
 let IsDisabled: boolean = false;
 
+enum upgradeAction {
+    Stop,
+    Search
+}
+
+interface UpgradeMessageItem extends vscode.MessageItem {
+    id: upgradeAction;
+}
+
 export default class SpellProvider implements vscode.CodeActionProvider {
     private validationDelayer: Map<Delayer<void>> = Object.create(null); // key is the URI of the document
 
@@ -54,9 +63,33 @@ export default class SpellProvider implements vscode.CodeActionProvider {
 
     public activate(context: vscode.ExtensionContext) {
         if (DEBUG) console.log("Spell and Grammar checker active...");
+
+        const config = vscode.workspace.getConfiguration('spell');
+
+        if (config.get("StopAsking", false)) {
+        	// do nothing
+        } else {
+            vscode.window.showWarningMessage<UpgradeMessageItem>(
+                'The Spell Checker Extension no longer works - please uninstall it and install another one.',
+                { title: "Show Suggested Replacement", id: upgradeAction.Search },
+                { title: "Don't Ask Again", id: upgradeAction.Stop, isCloseAffordance: true }
+            ).then(selection => {
+                switch (selection && selection.id) {
+                    case upgradeAction.Search:
+        				var open = require('open');
+                        open('https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker');
+                        break;
+                    case upgradeAction.Stop:
+                        config.update('StopAsking', true, true);
+        				console.log("Wrote setting...");
+                        break;
+                }
+            });
+        }
+
         let subscriptions: vscode.Disposable[] = context.subscriptions;
         let toggleCmd: vscode.Disposable;
-        
+
         vscode.commands.registerCommand("toggleSpell", this.toggleSpell.bind(this));
         statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         statusBarItem.command = "toggleSpell";
@@ -93,12 +126,12 @@ export default class SpellProvider implements vscode.CodeActionProvider {
     public toggleSpell() {
         if (IsDisabled) {
             IsDisabled = false;
-            if (vscode.window.activeTextEditor){
+            if (vscode.window.activeTextEditor) {
                 this.TriggerDiagnostics(vscode.window.activeTextEditor.document);
             }
         } else {
             IsDisabled = true;
-            if(DEBUG) console.log("Clearing diagnostics as Spell was disabled.")
+            if (DEBUG) console.log("Clearing diagnostics as Spell was disabled.")
             spellDiagnostics.clear();
         }
         this.updateStatus();
@@ -283,6 +316,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
         let cfg: any = readJsonFile(vscode.workspace.rootPath + CONFIGFOLDER + CONFIGFILE);
 
         function readJsonFile(file): any {
+            let cfg;
             try {
                 cfg = JSON.parse(fs.readFileSync(file).toString());
                 if (DEBUG) console.log("Settings read from: " + file)
@@ -450,11 +484,11 @@ export default class SpellProvider implements vscode.CodeActionProvider {
             pattern = pattern.replace(/\\\\/g, "\\");
             let regex = new RegExp(pattern, flags);
 
-            if(DEBUG) console.log("Ignoreing ["+ expressions[x] +"]");
+            if (DEBUG) console.log("Ignoreing [" + expressions[x] + "]");
 
             match = content.match(regex);
             if (match !== null) {
-                if(DEBUG) console.log("Found [" + match.length + "] matches for removal");
+                if (DEBUG) console.log("Found [" + match.length + "] matches for removal");
                 // look for a multi line match and build enough lines into the replacement
                 for (let i = 0; i < match.length; i++) {
                     let spaces: string;
