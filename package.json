@@ -3,7 +3,7 @@
 	"displayName": "[DEPRECATED] Spelling and Grammar Checker",
 	"description": "[DEPRECATED] Web service is no longer active - Try `Code Spellchecker`.  See README for details.",
 	"icon": "images/spellIcon.svg",
-	"version": "0.9.1",
+	"version": "1.0.0",
 	"publisher": "seanmcbreen",
 	"galleryBanner": {
 		"color": "#5c2d91",
