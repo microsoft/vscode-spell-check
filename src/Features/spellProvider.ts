@@ -341,7 +341,7 @@ export default class SpellProvider implements vscode.CodeActionProvider {
                                             "Missing Word": "Disable", \
                                             "Make I uppercase": "Warning" \
                                     },\
-                                "languageIDs": ["markdown","plaintext"],\
+                                "languageIDs": ["markdown","plaintext", "git-commit"],\
                                 "ignoreRegExp": [ \
                                     "/\\\\(.*\\\\.(jpg|jpeg|png|md|gif|JPG|JPEG|PNG|MD|GIF)\\\\)/g", \
                                     "/((http|https|ftp|git)\\\\S*)/g" \
