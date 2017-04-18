@@ -5,7 +5,7 @@ Unfortunately, the underlying service that this extension depends upon has stopp
 
 ## Better Spell Checkers are Available - Time to Upgrade
 
-**I recommend you [un-install this extension]((https://code.visualstudio.com/docs/editor/extension-gallery#_manage-extensions))** and use one of the other options such as [Code Spellchecker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) in it's place.  I'm publishing this update to help users find a valid migration path. 
+**I recommend you [un-install this extension]((https://code.visualstudio.com/docs/editor/extension-gallery#_manage-extensions)** and use one of the other options such as [Code Spellchecker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) in it's place.  I'm publishing this update to help users find a valid migration path. 
 
 To highlight this to existing users upon activating the extension you will see a new warning message:  
 
